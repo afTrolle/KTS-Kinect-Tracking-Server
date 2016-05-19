@@ -1,0 +1,115 @@
+﻿<Window x:Class="KTS_Kinect_Tracking_Server.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:KTS_Kinect_Tracking_Server"
+        Icon="Assets/Window_icon.ico"
+        mc:Ignorable="d"
+        Title="Kinect Tracking Server" Height="auto" Width="auto" SizeToContent="WidthAndHeight" ResizeMode="CanMinimize">
+
+    <Grid  Name="divider" Background="#ecf0f1">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="256"/>
+            <ColumnDefinition Width="512"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="424"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Settings bar  -->
+        <Grid Grid.Column="0" Margin="4 0 4 8">
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/> <!-- Netowrk Settings -->
+                <RowDefinition Height="auto"/> <!-- Kinect Settings -->
+                <RowDefinition Height="1*"/> <!-- log settings -->
+                <RowDefinition  Height="auto"/> <!-- Start/Stop server Button-->
+            </Grid.RowDefinitions>
+
+            <!-- Network Settings Gui Row -->
+            <StackPanel Grid.Row="0">
+                <!-- Title -->
+                <Label Content="Network Settings" FontWeight="Bold"></Label>
+
+                <Label Content="Network Interface" FontSize="12" Margin="4  -8 0 0"></Label>
+                
+                <!-- for selecting network interface -->
+                <ComboBox Name="NetworkInterfaceComboBox" SelectionChanged="onNetworkInterfaceChanged" Text="Please Select Network Interface"  Margin="8 -5 8 0">
+                    <ComboBoxItem>127.0.0.1</ComboBoxItem>
+                </ComboBox>
+
+                <!-- what port the server should use -->
+                <Label Content="Network Port" FontSize="12" Margin="4 0"></Label>
+                <TextBox Name="NetworkPortTextBox" TextChanged="onPortChange" PreviewTextInput="NumberValidationTextBox"  Margin="8 -4 8 0"> 11000</TextBox>
+                
+                <!-- showing network statistics -->
+                <Label Content="Network statistics" FontSize="12" Margin="4 0"></Label>
+                <TextBox Name="NetworkStatsTextBox" BorderBrush="#FFB0B0B0" Text="Connected: 0&#x0a;Latency: 0 ms" Background="#4CFFFFFF" Margin="8 -4 8 0" IsReadOnly="True"  TextWrapping="Wrap" AcceptsReturn="True"/>
+
+            </StackPanel>
+
+            <!-- Kinect Settings -->
+            <StackPanel Grid.Row="1" Margin="0 0 0 0">
+                <Label Content="Kinect SDK Settings" FontWeight="Bold"></Label>
+
+                <Label Content="Kinect Camera" FontSize="12"  Margin="4 -8 0 0"></Label>
+                
+                <!-- for selecting which camera too view from -->
+                <ComboBox Name="KinectCameraComboBox" SelectionChanged="onKinectCameraChanged" Text="Select Camera Preview"  Margin="8 -4 8 0" >
+                    <ComboBoxItem>Infrared Camera</ComboBoxItem>
+                    <ComboBoxItem>Depth Camera</ComboBoxItem>
+                    <ComboBoxItem>Color Camera</ComboBoxItem>
+                </ComboBox >
+
+                <DockPanel LastChildFill="True" Margin="4 3 8 8">
+                    <Label Margin="0 0 0 -6" Content="Kinect statistics" FontSize="12"/>
+                    
+                    <!-- Toggels If the kinect should show image of what is looking at -->
+                    <ToggleButton Name="KinectPreviewToggleButton" Click="onKinectPreviewToggled" Width="100" DockPanel.Dock="Right" IsChecked="True" Content="Preview" />
+                    <Rectangle></Rectangle> <!-- used as fill between items-->
+                </DockPanel>
+
+                <!-- showing  Kinect statistics -->
+                <TextBox Name="KinectStatsTextBox"  BorderBrush="#FFB0B0B0" Text="Tracked Bodys: 0&#x0a;Overal Latency: 0 ms" Background="#4CFFFFFF"  Margin="8 -4 8 0"  IsReadOnly="True"  TextWrapping="Wrap" AcceptsReturn="True" SelectionOpacity="-3" />
+
+            </StackPanel>
+
+            <!-- Loggin settings -->
+            <StackPanel Grid.Row="2" >
+                <Label Content="Log Settings" FontWeight="Bold" Margin="0 0 0 0" ></Label>
+
+                <Label Content="Logs Path" FontSize="12"  Margin="4  -8 4 0"></Label>
+
+                <!--Shows where   logs are saved -->
+                <Border BorderBrush="#FF969696"    Background="#ecf0f1"  BorderThickness="0.8" Margin="8 -4 8 0" >
+                    <TextBlock Name="LogsPathTextBlock" TextTrimming="CharacterEllipsis" Text="C:\" Margin="1"   Background="#ecf0f1"/>
+                </Border>
+
+
+                <DockPanel LastChildFill="True" Margin="8 3 8 8">
+                    <!-- set where the logs are saved -->
+                    <Button Name="SetPathButton" Click="onSetPathButtonClicked" Width="70" >set path</Button>
+                   
+                    <!--if loggin is enabled -->
+                    <ToggleButton Name="LoggingToggleButton" Click="onLoggingToggleButtonClicked" DockPanel.Dock="Right" Width="100" HorizontalAlignment="Right">Logging</ToggleButton>
+                    <Rectangle></Rectangle> <!--fill between buttons-->
+                </DockPanel>
+                 
+            </StackPanel>
+
+            <!--Start stop Button for starting and stoping server-->
+            <StackPanel Grid.Row="4" VerticalAlignment="Bottom" Margin=" 6"  >
+                <Button  Name="StartStopButton" Click="onStartStopClicked" Content="Start"/>
+            </StackPanel>
+
+        </Grid>
+        
+        <!-- Imagebar -->
+        <Grid  Grid.Column="1"  >
+            <Image x:Name="PlaceholderImage" Source="Assets/CameraPlaceHolder.png" />
+            <Canvas Name="KinectTrackingCanvas"  VerticalAlignment="Top" HorizontalAlignment="Left"/>
+        </Grid>
+
+    </Grid>
+</Window>
