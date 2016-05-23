@@ -23,57 +23,75 @@ namespace KTS_Kinect_Tracking_Server.Properties {
             }
         }
         
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("1100")]
         public int Port {
             get {
                 return ((int)(this["Port"]));
             }
+            set {
+                this["Port"] = value;
+            }
         }
         
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string NetworkInterface {
             get {
                 return ((string)(this["NetworkInterface"]));
             }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public int KinectCamera {
-            get {
-                return ((int)(this["KinectCamera"]));
+            set {
+                this["NetworkInterface"] = value;
             }
         }
         
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Color Camera")]
+        public string KinectCamera {
+            get {
+                return ((string)(this["KinectCamera"]));
+            }
+            set {
+                this["KinectCamera"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool isKinectCameraEnabled {
             get {
                 return ((bool)(this["isKinectCameraEnabled"]));
             }
+            set {
+                this["isKinectCameraEnabled"] = value;
+            }
         }
         
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string LogDirectorty {
             get {
                 return ((string)(this["LogDirectorty"]));
             }
+            set {
+                this["LogDirectorty"] = value;
+            }
         }
         
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool isLogingEnabled {
             get {
                 return ((bool)(this["isLogingEnabled"]));
+            }
+            set {
+                this["isLogingEnabled"] = value;
             }
         }
     }

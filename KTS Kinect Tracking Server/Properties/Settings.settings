@@ -2,22 +2,22 @@
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="KTS_Kinect_Tracking_Server.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
-    <Setting Name="Port" Type="System.Int32" Scope="Application">
+    <Setting Name="Port" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">1100</Value>
     </Setting>
-    <Setting Name="NetworkInterface" Type="System.String" Scope="Application">
+    <Setting Name="NetworkInterface" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="KinectCamera" Type="System.Int32" Scope="Application">
-      <Value Profile="(Default)">0</Value>
+    <Setting Name="KinectCamera" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Color Camera</Value>
     </Setting>
-    <Setting Name="isKinectCameraEnabled" Type="System.Boolean" Scope="Application">
+    <Setting Name="isKinectCameraEnabled" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
-    <Setting Name="LogDirectorty" Type="System.String" Scope="Application">
+    <Setting Name="LogDirectorty" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="isLogingEnabled" Type="System.Boolean" Scope="Application">
+    <Setting Name="isLogingEnabled" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
   </Settings>

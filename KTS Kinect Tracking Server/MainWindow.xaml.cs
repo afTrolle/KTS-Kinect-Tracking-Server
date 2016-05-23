@@ -13,6 +13,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Text.RegularExpressions;
+using System.ComponentModel;
+using System.Windows.Controls.Primitives;
 
 namespace KTS_Kinect_Tracking_Server
 {
@@ -21,11 +23,65 @@ namespace KTS_Kinect_Tracking_Server
     /// </summary>
     public partial class MainWindow : Window
     {
+
+        //Main class ties everything together
+        MainClass mClass = new MainClass();
+
+        //
+        private BackgroundWorker bw = new BackgroundWorker();
+
+
+        //make user that the init functions is only run once
+        private bool isApplicationInitialized = false;
+
+      
+
         public MainWindow()
         {
             InitializeComponent();
 
+            this.Loaded += onApplicationInitialization;
+            this.Closing += onApplcationClosing;
 
+        }
+
+
+        /************************ events for starting and ending application ***********************************/
+
+        // Called before window is shown (load settings)
+        private void onApplicationInitialization(object sender, RoutedEventArgs e)
+        {
+            // guard so that inizaltation occurs only once
+            if (!isApplicationInitialized)
+            {
+                isApplicationInitialized = true;
+                mClass.onApplicationInitialization(this);
+            }
+
+
+            bw.WorkerSupportsCancellation = false;
+            bw.WorkerReportsProgress = false;
+
+
+            bw.DoWork += Bw_DoWork;
+            bw.RunWorkerCompleted += Bw_RunWorkerCompleted;
+            bw.RunWorkerAsync();
+
+        }
+
+        private void Bw_DoWork(object sender, DoWorkEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void Bw_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void onApplcationClosing(object sender, CancelEventArgs e)
+        {
+            mClass.ApplicationClosing();
         }
 
         /************************  UI Event Handlers  ***********************************/
@@ -69,7 +125,6 @@ namespace KTS_Kinect_Tracking_Server
 
         }
 
-
         /*    Logging UI   */
 
         // Called to set where the logs path should save
@@ -84,12 +139,40 @@ namespace KTS_Kinect_Tracking_Server
 
         }
 
+
+
         private void onStartStopClicked(object sender, RoutedEventArgs e)
         {
 
+            Button StartStopButton = (Button)sender;
+            
+            // if the application ()
+            if (mClass.getisApplicationRunning())
+            {
+
+                // start kinect camera and networking
+                if (mClass.onApplicationStop())
+                {
+                    StartStopButton.Content = "Start server";
+                }
+
+            }
+            else
+            {
+
+                // stop kinect camera and networking
+                if (mClass.onApplicationStart())
+                {
+                    StartStopButton.Content = "Stop server";
+                }
+
+            }
         }
+
 
         /************************  More stuff here  ***********************************/
 
     }
+
+
 }

@@ -108,6 +108,7 @@
         <!-- Imagebar -->
         <Grid  Grid.Column="1"  >
             <Image x:Name="PlaceholderImage" Source="Assets/CameraPlaceHolder.png" />
+            <Image Name="KinectCameraImage"/>
             <Canvas Name="KinectTrackingCanvas"  VerticalAlignment="Top" HorizontalAlignment="Left"/>
         </Grid>
 
