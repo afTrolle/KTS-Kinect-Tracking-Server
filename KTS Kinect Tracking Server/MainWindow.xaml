@@ -57,9 +57,9 @@
                 
                 <!-- for selecting which camera too view from -->
                 <ComboBox Name="KinectCameraComboBox" SelectionChanged="onKinectCameraChanged" Text="Select Camera Preview"  Margin="8 -4 8 0" >
-                    <ComboBoxItem>Infrared Camera</ComboBoxItem>
-                    <ComboBoxItem>Depth Camera</ComboBoxItem>
-                    <ComboBoxItem>Color Camera</ComboBoxItem>
+                    <ComboBoxItem  Name="KinectComboBoxItemCL">Color Camera</ComboBoxItem>
+                    <ComboBoxItem Name="KinectComboBoxItemIR">Infrared Camera</ComboBoxItem>
+                    <ComboBoxItem  Name="KinectComboBoxItemDP">Depth Camera</ComboBoxItem>
                 </ComboBox >
 
                 <DockPanel LastChildFill="True" Margin="4 3 8 8">

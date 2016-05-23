@@ -3,7 +3,7 @@
   <Profiles />
   <Settings>
     <Setting Name="Port" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">1100</Value>
+      <Value Profile="(Default)">1000</Value>
     </Setting>
     <Setting Name="NetworkInterface" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
@@ -15,7 +15,7 @@
       <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="LogDirectorty" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
+      <Value Profile="(Default)">C:\</Value>
     </Setting>
     <Setting Name="isLogingEnabled" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>

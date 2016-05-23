@@ -25,7 +25,7 @@ namespace KTS_Kinect_Tracking_Server.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1100")]
+        [global::System.Configuration.DefaultSettingValueAttribute("1000")]
         public int Port {
             get {
                 return ((int)(this["Port"]));
@@ -73,7 +73,7 @@ namespace KTS_Kinect_Tracking_Server.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\")]
         public string LogDirectorty {
             get {
                 return ((string)(this["LogDirectorty"]));

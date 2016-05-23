@@ -57,6 +57,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Utilitys\ApplicationState.cs" />
     <Compile Include="Utilitys\SettingsHelper.cs" />
     <Compile Include="Utilitys\UserException.cs" />
     <Page Include="MainWindow.xaml">

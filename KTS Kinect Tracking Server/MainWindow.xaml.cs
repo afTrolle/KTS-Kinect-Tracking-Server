@@ -15,6 +15,8 @@ using System.Windows.Shapes;
 using System.Text.RegularExpressions;
 using System.ComponentModel;
 using System.Windows.Controls.Primitives;
+using KTS_Kinect_Tracking_Server.Utilitys;
+using KTS_Kinect_Tracking_Server.Properties;
 
 namespace KTS_Kinect_Tracking_Server
 {
@@ -27,14 +29,7 @@ namespace KTS_Kinect_Tracking_Server
         //Main class ties everything together
         MainClass mClass = new MainClass();
 
-        //
-        private BackgroundWorker bw = new BackgroundWorker();
-
-
         //make user that the init functions is only run once
-        private bool isApplicationInitialized = false;
-
-      
 
         public MainWindow()
         {
@@ -51,37 +46,24 @@ namespace KTS_Kinect_Tracking_Server
         // Called before window is shown (load settings)
         private void onApplicationInitialization(object sender, RoutedEventArgs e)
         {
+
             // guard so that inizaltation occurs only once
-            if (!isApplicationInitialized)
+            if (!ApplicationState.isApplicationInitialized)
             {
-                isApplicationInitialized = true;
+
+                setUiFromApplicationSettings();
+
                 mClass.onApplicationInitialization(this);
+
+                ApplicationState.isApplicationInitialized = true;
+                ApplicationState.state = ApplicationState.IDLE;
             }
 
-
-            bw.WorkerSupportsCancellation = false;
-            bw.WorkerReportsProgress = false;
-
-
-            bw.DoWork += Bw_DoWork;
-            bw.RunWorkerCompleted += Bw_RunWorkerCompleted;
-            bw.RunWorkerAsync();
-
-        }
-
-        private void Bw_DoWork(object sender, DoWorkEventArgs e)
-        {
-            throw new NotImplementedException();
-        }
-
-        private void Bw_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
-        {
-            throw new NotImplementedException();
         }
 
         private void onApplcationClosing(object sender, CancelEventArgs e)
         {
-            mClass.ApplicationClosing();
+            mClass.onApplicationExit();
         }
 
         /************************  UI Event Handlers  ***********************************/
@@ -106,7 +88,6 @@ namespace KTS_Kinect_Tracking_Server
         // Called everytime the network port has changed
         private void onPortChange(object sender, TextChangedEventArgs e)
         {
-
         }
 
         /*    Kinect Camera UI   */
@@ -140,39 +121,100 @@ namespace KTS_Kinect_Tracking_Server
         }
 
 
-
-        private void onStartStopClicked(object sender, RoutedEventArgs e)
+        private async void onStartStopClicked(object sender, RoutedEventArgs e)
         {
 
             Button StartStopButton = (Button)sender;
-            
             // if the application ()
-            if (mClass.getisApplicationRunning())
+            if (ApplicationState.state == ApplicationState.RUNNING)
             {
 
-                // start kinect camera and networking
-                if (mClass.onApplicationStop())
+                try
                 {
-                    StartStopButton.Content = "Start server";
+
+                    // TODO call stop functions
+
+
+                }
+                catch (Exception)
+                {
+
                 }
 
+
+
+                return;
             }
-            else
+            else if (ApplicationState.state == ApplicationState.IDLE)
             {
 
-                // stop kinect camera and networking
-                if (mClass.onApplicationStart())
+                try
                 {
-                    StartStopButton.Content = "Stop server";
+                    StartStopButton.Content = "Starting";
+
+                    setUIaccessState(false);
+
+                    ApplicationState.state = ApplicationState.STARTING;
+                    await mClass.onApplicationStartAsync();
+                    ApplicationState.state = ApplicationState.RUNNING;
+                    StartStopButton.Content = "Stop";
+
+                }
+                catch (Exception)
+                {
+                    // TODO prompt error message 
+                    ApplicationState.state = ApplicationState.IDLE;
+                    setUIaccessState(true);
+                    StartStopButton.Content = "start ";
                 }
 
+                return;
             }
         }
 
 
         /************************  More stuff here  ***********************************/
 
-    }
 
+        private void setUiFromApplicationSettings()
+        {
+
+            NetworkPortTextBox.Text = Settings.Default.Port.ToString();
+
+            KinectPreviewToggleButton.IsEnabled = Settings.Default.isKinectCameraEnabled;
+
+            LogsPathTextBlock.Text = Settings.Default.LogDirectorty ;
+            LoggingToggleButton.IsEnabled = Settings.Default.isLogingEnabled;
+
+            string status = Settings.Default.KinectCamera;
+
+            Console.WriteLine(status);
+
+            // better implmentaion could be made
+            if (status.Equals("Color Camera"))
+            {
+                KinectComboBoxItemCL.IsSelected = true;
+            } else if (status.Equals("Infrared Camera"))
+            {
+                KinectComboBoxItemIR.IsSelected = true;
+            }
+            else if (status.Equals( "Depth Camera"))
+            {
+                KinectComboBoxItemDP.IsSelected = true;
+            }
+
+        }
+
+
+        // stop users from editng settings when program is running
+        private void setUIaccessState(bool state)
+        {
+            NetworkPortTextBox.IsEnabled = state;
+            NetworkInterfaceComboBox.IsEnabled = state;
+
+            SetPathButton.IsEnabled = state;
+            LoggingToggleButton.IsEnabled = state;
+        }
+    }
 
 }

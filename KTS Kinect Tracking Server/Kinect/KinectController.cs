@@ -26,9 +26,12 @@ namespace KTS_Kinect_Tracking_Server.Kinect
         ColorFrameReader colorReader;
         DepthFrameReader depthReader;
 
+        MultiSourceFrameReader test;
+
         // camera image Buffer
         WriteableBitmap kinectPreviewBitmap;
 
+        /* Application Running cycle   */
 
         // inizalation of kinect sensor
         internal void init(MainClass mainClass)
@@ -39,8 +42,20 @@ namespace KTS_Kinect_Tracking_Server.Kinect
                 kSensor = KinectSensor.GetDefault();
 
                 kSensor.PropertyChanged += KSensor_PropertyChanged;
+
                 bodies = new Body[6]; //kinect camera can max track 6 people
 
+
+                // TODO get UI Components that will be drawn too. 
+
+
+                // TODO get user settings and set event handlers.
+
+
+                // setup body tracking / reader
+                bodyReader = kSensor.BodyFrameSource.OpenReader();
+
+                bodyReader.FrameArrived += bodyReader_FrameArrived;
 
             }
             catch (TypeInitializationException)
@@ -48,14 +63,71 @@ namespace KTS_Kinect_Tracking_Server.Kinect
                 throw new KinectInitException("Kinect SDK 2.0 not installed");
             }
 
-
-
-            // setup body tracking / reader
-            bodyReader = kSensor.BodyFrameSource.OpenReader();
-           
-            bodyReader.FrameArrived += bodyReader_FrameArrived;
-
         }
+
+
+        // Start tracking active
+        internal async Task StartTrackingAsync()
+        {
+
+            // check if a kinect device is connected
+        /*    if (!isKinectConnected())
+            {
+                throw new Exception("Kinect sensor is not connected");
+            }
+         */
+
+            //start Kinect sensor
+            kSensor.Open();
+
+            // wait for 10 sec for the kinect to start
+            for (int sec = 0; sec < 10; sec++)
+            {
+
+                await Task.Delay(1000);
+
+                if (kSensor.IsOpen && kSensor.IsAvailable)
+                {
+                    // break waiting cycle
+                    return;
+                }
+            }
+
+            kSensor.Close();
+            throw new Exception("Kinect Failed to start");
+        }
+
+        // Stop Tracking 
+        internal void StopTracking()
+        {
+            //   throw new NotImplementedException();
+        }
+
+        // program is about to be shutdown realse memory.
+        internal void onApplicationExit()
+        {
+            //         throw new NotImplementedException();
+        }
+
+
+
+        /* Kinect Events  */
+
+        // called when skeleton tracking has been updated
+        private void bodyReader_FrameArrived(object sender, BodyFrameArrivedEventArgs args)
+        {
+
+            using (BodyFrame bodyFrame = args.FrameReference.AcquireFrame())
+            {
+                if (bodyFrame != null)
+                {
+                    bodyFrame.GetAndRefreshBodyData(bodies);
+                    // updated body data
+
+                }
+            }
+        }
+
 
         private void KSensor_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
@@ -90,6 +162,10 @@ namespace KTS_Kinect_Tracking_Server.Kinect
         }
 
 
+
+
+        /* Helper Functions  */ 
+
         // checks device manager if kinect is connected could be made better but works.
         private bool isKinectConnected()
         {
@@ -106,51 +182,6 @@ namespace KTS_Kinect_Tracking_Server.Kinect
             return false;
         }
 
-
-        internal void StartTracking()
-        {
-
-            if (!isKinectConnected())
-            {
-                throw new KinectInitException("Kinect not connected or recognized");
-            }
-
-            // start kinect sensor (initialises ksensors vars)
-            kSensor.Open();
-
-        }
-
-
-        internal void StopTracking()
-        {
-            //   throw new NotImplementedException();
-        }
-
-
-        // called when skeleton tracking has been updated
-        private void bodyReader_FrameArrived(object sender, BodyFrameArrivedEventArgs args)
-        {
-
-            using (BodyFrame bodyFrame = args.FrameReference.AcquireFrame())
-            {
-                if (bodyFrame != null)
-                {
-                    bodyFrame.GetAndRefreshBodyData(bodies);
-                    // updated body data
-
-
-                }
-            }
-
-        }
-
-
-
-        // Release buffers and tell kinect too shutdown
-        internal void ApplicationClosing()
-        {
-            //         throw new NotImplementedException();
-        }
 
     }
 }
