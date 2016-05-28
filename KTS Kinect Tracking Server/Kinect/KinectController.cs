@@ -7,6 +7,8 @@ using System.Management;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 
@@ -14,6 +16,9 @@ namespace KTS_Kinect_Tracking_Server.Kinect
 {
     class KinectController
     {
+
+
+
         // main kinect sensor variable
         KinectSensor kSensor;
 
@@ -41,13 +46,16 @@ namespace KTS_Kinect_Tracking_Server.Kinect
             {
                 kSensor = KinectSensor.GetDefault();
 
+
+
                 kSensor.PropertyChanged += KSensor_PropertyChanged;
 
                 bodies = new Body[6]; //kinect camera can max track 6 people
 
 
                 // TODO get UI Components that will be drawn too. 
-
+                kinectPreviewBitmap = new WriteableBitmap(512, 424, 96, 96, PixelFormats.Gray16, null);
+                mainClass.mainWindow.KinectCameraImage.Source = kinectPreviewBitmap;
 
                 // TODO get user settings and set event handlers.
 
@@ -65,17 +73,36 @@ namespace KTS_Kinect_Tracking_Server.Kinect
 
         }
 
+        internal void setIrImage(System.Windows.Controls.Image irImage)
+        {
+            irImage.Source = kinectPreviewBitmap;
+        }
+
+        private void initCamera()
+        {
+
+            //setup ir reader so we get a view of the camera
+            irReader = kSensor.InfraredFrameSource.OpenReader();
+            FrameDescription fd = kSensor.InfraredFrameSource.FrameDescription;
+
+            //data holders
+            ushort[] irData = new ushort[fd.LengthInPixels];
+
+            WriteableBitmap wbmap = new WriteableBitmap(fd.Width, fd.Height, 96, 96, PixelFormats.Gray16, null);
+            Int32Rect wbmapRect = new Int32Rect(0, 0, wbmap.PixelWidth, wbmap.PixelHeight);
+            int wbmapStride = wbmap.PixelWidth * wbmap.Format.BitsPerPixel / 8;
+
+            wbmap.WritePi§xels();
+            //irReader.FrameArrived += irReader_FrameArrived;
+        }
+
 
         // Start tracking active
         internal async Task StartTrackingAsync()
         {
 
             // check if a kinect device is connected
-        /*    if (!isKinectConnected())
-            {
-                throw new Exception("Kinect sensor is not connected");
-            }
-         */
+
 
             //start Kinect sensor
             kSensor.Open();
@@ -88,14 +115,20 @@ namespace KTS_Kinect_Tracking_Server.Kinect
 
                 if (kSensor.IsOpen && kSensor.IsAvailable)
                 {
-                    // break waiting cycle
+                    // break waiting cycle kinect is ready to go
                     return;
                 }
             }
 
+            // This part is run if kinect has not started within 10 sec tell program to look for errors
             kSensor.Close();
-            throw new Exception("Kinect Failed to start");
+            if (!isKinectConnected())
+            {
+                throw new Exception("Failed to start Kinect sensor, Can not detect Kinect sensor");
+            }
+            throw new Exception("Kinect sensor failed to start took to long for sensor to start");
         }
+
 
         // Stop Tracking 
         internal void StopTracking()
@@ -110,8 +143,7 @@ namespace KTS_Kinect_Tracking_Server.Kinect
         }
 
 
-
-        /* Kinect Events  */
+        /* Kinect Frames Events  */
 
         // called when skeleton tracking has been updated
         private void bodyReader_FrameArrived(object sender, BodyFrameArrivedEventArgs args)
@@ -123,11 +155,12 @@ namespace KTS_Kinect_Tracking_Server.Kinect
                 {
                     bodyFrame.GetAndRefreshBodyData(bodies);
                     // updated body data
-
                 }
             }
         }
 
+
+        /*   */
 
         private void KSensor_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
@@ -164,7 +197,7 @@ namespace KTS_Kinect_Tracking_Server.Kinect
 
 
 
-        /* Helper Functions  */ 
+        /* Helper Functions  */
 
         // checks device manager if kinect is connected could be made better but works.
         private bool isKinectConnected()

@@ -49,7 +49,7 @@ namespace KTS_Kinect_Tracking_Server
             try
             {
                 await kinectControl.StartTrackingAsync();
-
+               
                 // TODO add network start function
             }
             catch (Exception e)
@@ -79,7 +79,9 @@ namespace KTS_Kinect_Tracking_Server
         public void onBodyTrackingUpdated(Body[] bodies)
         {
             //TODO fix this
+
         }
 
     }
+
 }

@@ -120,12 +120,11 @@ namespace KTS_Kinect_Tracking_Server
 
         }
 
-
         private async void onStartStopClicked(object sender, RoutedEventArgs e)
         {
 
             Button StartStopButton = (Button)sender;
-            // if the application ()
+            // if the application  start apllication or stop application
             if (ApplicationState.state == ApplicationState.RUNNING)
             {
 
@@ -133,7 +132,6 @@ namespace KTS_Kinect_Tracking_Server
                 {
 
                     // TODO call stop functions
-
 
                 }
                 catch (Exception)
@@ -160,9 +158,15 @@ namespace KTS_Kinect_Tracking_Server
                     StartStopButton.Content = "Stop";
 
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
                     // TODO prompt error message 
+
+                    if (ex.Message != "")
+                    {
+                        showWarning(ex.Message, "Warning");
+                    }
+
                     ApplicationState.state = ApplicationState.IDLE;
                     setUIaccessState(true);
                     StartStopButton.Content = "start ";
@@ -175,7 +179,12 @@ namespace KTS_Kinect_Tracking_Server
 
         /************************  More stuff here  ***********************************/
 
+        //shows message box 
+        private void showWarning(string message, string title)
+        {
+            MessageBoxResult result = MessageBox.Show(this, message, title, MessageBoxButton.OK, MessageBoxImage.Warning);
 
+        }
         private void setUiFromApplicationSettings()
         {
 
@@ -183,7 +192,7 @@ namespace KTS_Kinect_Tracking_Server
 
             KinectPreviewToggleButton.IsEnabled = Settings.Default.isKinectCameraEnabled;
 
-            LogsPathTextBlock.Text = Settings.Default.LogDirectorty ;
+            LogsPathTextBlock.Text = Settings.Default.LogDirectorty;
             LoggingToggleButton.IsEnabled = Settings.Default.isLogingEnabled;
 
             string status = Settings.Default.KinectCamera;
@@ -194,11 +203,12 @@ namespace KTS_Kinect_Tracking_Server
             if (status.Equals("Color Camera"))
             {
                 KinectComboBoxItemCL.IsSelected = true;
-            } else if (status.Equals("Infrared Camera"))
+            }
+            else if (status.Equals("Infrared Camera"))
             {
                 KinectComboBoxItemIR.IsSelected = true;
             }
-            else if (status.Equals( "Depth Camera"))
+            else if (status.Equals("Depth Camera"))
             {
                 KinectComboBoxItemDP.IsSelected = true;
             }
@@ -215,6 +225,9 @@ namespace KTS_Kinect_Tracking_Server
             SetPathButton.IsEnabled = state;
             LoggingToggleButton.IsEnabled = state;
         }
+
+
     }
+
 
 }
