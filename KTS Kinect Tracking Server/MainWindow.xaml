@@ -36,7 +36,6 @@
                 
                 <!-- for selecting network interface -->
                 <ComboBox Name="NetworkInterfaceComboBox" SelectionChanged="onNetworkInterfaceChanged" Text="Please Select Network Interface"  Margin="8 -5 8 0">
-                    <ComboBoxItem>127.0.0.1</ComboBoxItem>
                 </ComboBox>
 
                 <!-- what port the server should use -->
@@ -108,7 +107,7 @@
         <!-- Imagebar -->
         <Grid  Grid.Column="1"  >
             <Image x:Name="PlaceholderImage" Source="Assets/CameraPlaceHolder.png" />
-            <Image Name="KinectCameraImage"/>
+            <Image Name="KinectCameraImage" VerticalAlignment="Center" HorizontalAlignment="Center" Stretch="UniformToFill" />
             <Canvas Name="KinectTrackingCanvas"  VerticalAlignment="Top" HorizontalAlignment="Left"/>
         </Grid>
 

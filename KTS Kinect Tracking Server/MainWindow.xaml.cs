@@ -55,8 +55,8 @@ namespace KTS_Kinect_Tracking_Server
 
                 mClass.onApplicationInitialization(this);
 
-                ApplicationState.isApplicationInitialized = true;
                 ApplicationState.state = ApplicationState.IDLE;
+                ApplicationState.isApplicationInitialized = true;
             }
 
         }
@@ -73,6 +73,17 @@ namespace KTS_Kinect_Tracking_Server
         private void onNetworkInterfaceChanged(object sender, SelectionChangedEventArgs e)
         {
 
+
+            if (ApplicationState.isApplicationInitialized)
+            {
+                string netInterface = (string) NetworkInterfaceComboBox.SelectedItem;
+
+                if (netInterface != null && netInterface != "")
+                {
+                    Settings.Default.NetworkInterface = netInterface;
+                    Settings.Default.Save();
+                }
+            }
         }
 
 
@@ -88,6 +99,20 @@ namespace KTS_Kinect_Tracking_Server
         // Called everytime the network port has changed
         private void onPortChange(object sender, TextChangedEventArgs e)
         {
+            // this might be a bit foolish using to much I/O beacuse person can be typing however there isn't loads of interaction
+            // however means that while your I/o operation is on going means that the ui is locked
+            if (ApplicationState.isApplicationInitialized)
+            {
+                string port = NetworkPortTextBox.Text;
+                int portnum;
+                bool parsed = Int32.TryParse(port, out portnum);
+                if (parsed)
+                {
+                    Settings.Default.Port = portnum;
+                    Settings.Default.Save();
+                }
+
+            }
         }
 
         /*    Kinect Camera UI   */
@@ -96,14 +121,45 @@ namespace KTS_Kinect_Tracking_Server
         private void onKinectCameraChanged(object sender, SelectionChangedEventArgs e)
         {
 
+            if (ApplicationState.isApplicationInitialized)
+            {
 
+                if (KinectComboBoxItemCL.IsSelected)
+                {
+                    Settings.Default.KinectCamera = "Color Camera";
+                }
+                else if (KinectComboBoxItemIR.IsSelected)
+                {
+                    Settings.Default.KinectCamera = "Infrared Camera";
+                }
+                else if (KinectComboBoxItemDP.IsSelected)
+                {
+                    Settings.Default.KinectCamera = "Depth Camera";
+                }
+
+                mClass.kinectControl.updatePreviewState();
+
+                Settings.Default.Save();
+            }
         }
 
         // Called if we should show preview or not show the preview.
         private void onKinectPreviewToggled(object sender, RoutedEventArgs e)
         {
+            if (ApplicationState.isApplicationInitialized)
+            {
+                if (KinectPreviewToggleButton.IsChecked == true)
+                {
+                    Settings.Default.isKinectCameraEnabled = true;
+                }
+                else
+                {
+                    Settings.Default.isKinectCameraEnabled = false;
+                }
 
-
+                mClass.kinectControl.updatePreviewState();
+                Settings.Default.Save();
+            }
         }
 
         /*    Logging UI   */
@@ -130,16 +186,15 @@ namespace KTS_Kinect_Tracking_Server
 
                 try
                 {
-
                     // TODO call stop functions
-
+                    await mClass.onApplicationStopAsync();
+                    StartStopButton.Content = "Start";
+                    ApplicationState.state = ApplicationState.IDLE;
                 }
                 catch (Exception)
                 {
 
                 }
-
-
 
                 return;
             }
@@ -190,10 +245,10 @@ namespace KTS_Kinect_Tracking_Server
 
             NetworkPortTextBox.Text = Settings.Default.Port.ToString();
 
-            KinectPreviewToggleButton.IsEnabled = Settings.Default.isKinectCameraEnabled;
+            KinectPreviewToggleButton.IsChecked = Settings.Default.isKinectCameraEnabled;
 
             LogsPathTextBlock.Text = Settings.Default.LogDirectorty;
-            LoggingToggleButton.IsEnabled = Settings.Default.isLogingEnabled;
+            LoggingToggleButton.IsChecked = Settings.Default.isLogingEnabled;
 
             string status = Settings.Default.KinectCamera;
 

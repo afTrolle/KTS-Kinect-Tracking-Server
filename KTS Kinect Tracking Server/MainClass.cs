@@ -29,11 +29,11 @@ namespace KTS_Kinect_Tracking_Server
                 // Prep Kinect SDK
                 kinectControl.init(this);
                 // Prep Network
-                networkControl.init();
+                networkControl.init(this);
             }
             catch (KinectInitException e)
             {
-               
+
             }
             catch (NetworkControllerInitException e)
             {
@@ -49,11 +49,20 @@ namespace KTS_Kinect_Tracking_Server
             try
             {
                 await kinectControl.StartTrackingAsync();
-               
                 // TODO add network start function
             }
             catch (Exception e)
             {
+                throw e;
+            }
+
+            try
+            {
+                await networkControl.StartServerAsync();
+            }
+            catch (Exception e)
+            {
+                kinectControl.StopTracking();
                 throw e;
             }
 
