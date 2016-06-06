@@ -7,7 +7,8 @@ using System.Text;
 using System.Threading.Tasks;
 using KTS_Kinect_Tracking_Server.Utilitys;
 using KTS_Kinect_Tracking_Server.Properties;
-
+using Microsoft.Kinect;
+using System.IO;
 
 namespace KTS_Kinect_Tracking_Server.Network
 {
@@ -17,6 +18,8 @@ namespace KTS_Kinect_Tracking_Server.Network
 
         // list over available ips
         public List<IPAddress> validIps;
+
+        private Socket ServerSocket;
 
         internal void init(MainClass mClass)
         {
@@ -37,10 +40,34 @@ namespace KTS_Kinect_Tracking_Server.Network
 
         internal async Task StartServerAsync()
         {
-            //  throw new NotImplementedException();
+
+            ServerSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
+            ServerSocket.NoDelay = true;
+
+
+            IPAddress selectedIp = validIps[mClass.mainWindow.NetworkInterfaceComboBox.SelectedIndex];
+            int networkport = Settings.Default.Port;
+            IPEndPoint localEndPoint = new IPEndPoint(selectedIp, networkport);
+            ServerSocket.Bind(localEndPoint);
+
+            try
+            {
+
+                ServerSocket.Listen(100);
+
+                ServerSocket.BeginAccept(AcceptCallback, ServerSocket);
+
+            }
+            catch (Exception e)
+            {
+
+            }
 
             return;
         }
+
+
 
         internal void StopTracking()
         {
@@ -89,6 +116,7 @@ namespace KTS_Kinect_Tracking_Server.Network
         {
             for (int i = 0; i < validIps.Count; i++)
             {
+
                 mClass.mainWindow.NetworkInterfaceComboBox.Items.Add(validIps[i].ToString());
                 if (Settings.Default.NetworkInterface == validIps[i].ToString())
                 {
@@ -103,5 +131,96 @@ namespace KTS_Kinect_Tracking_Server.Network
             }
         }
 
+        /*     Network Callbacks         */
+
+        private void AcceptCallback(IAsyncResult ar)
+        {
+
+            // Get the socket that handles the client request.
+            Socket listener = (Socket)ar.AsyncState;
+            Socket handler = listener.EndAccept(ar);
+
+            // create object handling client
+            StateObject state = new StateObject();
+            state.connection = handler;
+            // start listening for message to recive!
+            handler.BeginReceive(state.buffer, 0, StateObject.bufferSize, SocketFlags.None, ReadCallback, state);
+        }
+
+        private void ReadCallback(IAsyncResult ar)
+        {
+            StateObject state = (StateObject)ar.AsyncState;
+            Socket handler = state.connection;
+
+            // Read data from the client socket. 
+            int bytesRead = handler.EndReceive(ar);
+
+            //check if we recived more than 0 bytes
+            if (bytesRead > 0)
+            {
+
+                int offset = 0;
+
+                if (state.expectedMessageLength == 0)
+                {
+                    // first 4 bytes of a message is the total length of the message
+                    state.expectedMessageLength = BitConverter.ToInt32(state.buffer, 0);
+                    state.message = new byte[state.expectedMessageLength];
+
+                    offset = 4;
+                }
+
+                Array.Copy(state.buffer, offset, state.message, state.receivedMessageLength, Math.Min(bytesRead - offset, state.expectedMessageLength - state.receivedMessageLength));
+                state.receivedMessageLength += (bytesRead - offset);
+
+                if (state.receivedMessageLength > state.expectedMessageLength)
+                {
+                    // Here is message REcived 
+
+
+
+                    // Clear buffers
+                    state.expectedMessageLength = 0;
+                    state.receivedMessageLength = 0; //redudnat 
+                    state.message = null;
+
+
+                }
+
+                    // wait for more data
+                    handler.BeginReceive(state.buffer, 0, StateObject.bufferSize, SocketFlags.None, ReadCallback, state);
+            }
+        }
+
+
+        // State object for reading client data asynchronously
+        public class StateObject
+        {
+            // Client  socket.
+            public Socket connection = null;
+
+            public const int bufferSize = 2048;
+            public byte[] buffer = new byte[bufferSize];
+            public int expectedMessageLength = 0;
+            public int receivedMessageLength = 0;
+            public byte[] message = null;
+        }
+
     }
+
+    [Serializable]
+    public class MessageObject
+    {
+        public Instruction MessageInstruction;
+
+        public Status status;
+
+        public Person[] Person;
+
+        [Serializable]
+        public enum Status { Sucess, Failed, }
+        [Serializable]
+        public enum Instruction { onPositionUpdate, onIdentification, onError }
+    }
+
 }

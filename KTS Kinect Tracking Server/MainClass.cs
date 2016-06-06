@@ -5,7 +5,10 @@ using Microsoft.Kinect;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -17,11 +20,19 @@ namespace KTS_Kinect_Tracking_Server
         public KinectController kinectControl = new KinectController();
         public NetworkController networkControl = new NetworkController();
 
+      
+        private Person[] Stefans = new Person[8];
+
 
         // Called when Application window was loaded but not yet been shown.
         public void onApplicationInitialization(MainWindow mainWindow)
         {
             this.mainWindow = mainWindow;
+
+            for (int i = 0; i< 8; i++)
+            {
+                Stefans[i] = new Person();
+            }
 
             //TODO Clean up this
             try
@@ -85,9 +96,31 @@ namespace KTS_Kinect_Tracking_Server
             kinectControl.onApplicationExit();
         }
 
+
+        BinaryFormatter formatter = new BinaryFormatter();
+        MemoryStream stream = new MemoryStream();
+
         public void onBodyTrackingUpdated(Body[] bodies)
         {
+
+
             //TODO fix this
+            for (int i = 0; i < 6; i++)
+            {
+                if (bodies[i] != null) {
+                    KinectBodyHelper.setPersonVariables(Stefans[i], bodies[i]);
+                }
+            }
+
+            // Serialize the customer object graph.
+            formatter.Serialize(stream, Stefans);
+
+            //todo SEND BYTE ARRAY!
+
+
+            //clear Stream
+            stream.SetLength(0);
+
 
         }
 
