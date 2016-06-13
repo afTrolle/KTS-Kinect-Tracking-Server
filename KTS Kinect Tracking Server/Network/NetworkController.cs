@@ -45,7 +45,6 @@ namespace KTS_Kinect_Tracking_Server.Network
 
             ServerSocket.NoDelay = true;
 
-
             IPAddress selectedIp = validIps[mClass.mainWindow.NetworkInterfaceComboBox.SelectedIndex];
             int networkport = Settings.Default.Port;
             IPEndPoint localEndPoint = new IPEndPoint(selectedIp, networkport);
@@ -55,7 +54,6 @@ namespace KTS_Kinect_Tracking_Server.Network
             {
 
                 ServerSocket.Listen(100);
-
                 ServerSocket.BeginAccept(AcceptCallback, ServerSocket);
 
             }
@@ -68,17 +66,16 @@ namespace KTS_Kinect_Tracking_Server.Network
         }
 
 
-
         internal void StopTracking()
         {
             // throw new NotImplementedException();
-
+            ServerSocket.Close();
+            ServerSocket.Dispose();
         }
 
         internal void ApplicationClosing()
         {
             //    throw new NotImplementedException();
-
         }
 
         /*     Helper functions          */
@@ -125,6 +122,7 @@ namespace KTS_Kinect_Tracking_Server.Network
 
             }
 
+
             if (mClass.mainWindow.NetworkInterfaceComboBox.SelectedIndex == -1)
             {
                 mClass.mainWindow.NetworkInterfaceComboBox.SelectedIndex = 0;
@@ -136,40 +134,61 @@ namespace KTS_Kinect_Tracking_Server.Network
         private void AcceptCallback(IAsyncResult ar)
         {
 
-            // Get the socket that handles the client request.
-            Socket listener = (Socket)ar.AsyncState;
-            Socket handler = listener.EndAccept(ar);
+            try
+            {
+                // Get the socket that handles the client request.
+                Socket listener = (Socket)ar.AsyncState;
 
-            // create object handling client
-            StateObject state = new StateObject();
-            state.connection = handler;
-            // start listening for message to recive!
-            handler.BeginReceive(state.buffer, 0, StateObject.bufferSize, SocketFlags.None, ReadCallback, state);
+                if (listener.Connected == true)
+                {
+                    //get connected client socket
+                    Socket handler = listener.EndAccept(ar);
+
+                    // create object handling client
+                    StateObject state = new StateObject();
+                    state.connection = handler;
+                    // start listening for message to recive!
+                    handler.BeginReceive(state.buffer, 0, StateObject.bufferSize, SocketFlags.None, ReadCallback, state);
+
+                    // Accept new connections to the server!
+                    listener.BeginAccept(AcceptCallback, listener);
+                }
+
+            }
+            catch (Exception e)
+            {
+                // catch exeception
+                Console.WriteLine(e.Message);
+            }
+
         }
+
 
         private void ReadCallback(IAsyncResult ar)
         {
             StateObject state = (StateObject)ar.AsyncState;
             Socket handler = state.connection;
 
-            // Read data from the client socket. 
+            // Read data from the client socket.
             int bytesRead = handler.EndReceive(ar);
 
             //check if we recived more than 0 bytes
             if (bytesRead > 0)
             {
 
+
                 int offset = 0;
 
-                if (state.expectedMessageLength == 0)
+                if (state.expectedMessageLength == 0 && bytesRead > 3)
                 {
                     // first 4 bytes of a message is the total length of the message
                     state.expectedMessageLength = BitConverter.ToInt32(state.buffer, 0);
                     state.message = new byte[state.expectedMessageLength];
-
+                   
                     offset = 4;
                 }
 
+                // Copy, 
                 Array.Copy(state.buffer, offset, state.message, state.receivedMessageLength, Math.Min(bytesRead - offset, state.expectedMessageLength - state.receivedMessageLength));
                 state.receivedMessageLength += (bytesRead - offset);
 
@@ -177,19 +196,19 @@ namespace KTS_Kinect_Tracking_Server.Network
                 {
                     // Here is message REcived 
 
-
+                   
 
                     // Clear buffers
                     state.expectedMessageLength = 0;
                     state.receivedMessageLength = 0; //redudnat 
                     state.message = null;
 
-
                 }
 
-                    // wait for more data
-                    handler.BeginReceive(state.buffer, 0, StateObject.bufferSize, SocketFlags.None, ReadCallback, state);
+
             }
+            // wait for more data
+            handler.BeginReceive(state.buffer, 0, StateObject.bufferSize, SocketFlags.None, ReadCallback, state);
         }
 
 

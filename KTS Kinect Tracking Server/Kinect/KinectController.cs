@@ -62,23 +62,28 @@ namespace KTS_Kinect_Tracking_Server.Kinect
         }
 
         //set what preview that should be showing
-        private void setPreviewCamera()
+        private bool setPreviewCamera()
         {
 
             bool active = Settings.Default.isKinectCameraEnabled;
             string status = Settings.Default.KinectCamera;
 
+
             ClearPreviewCAmeras();
+
+            if (ApplicationState.state == ApplicationState.STARTING)
+            {
+                mainClass.mainWindow.KinectCameraImage.Visibility = Visibility.Hidden;
+            }
+        
 
             if (active == false && (ApplicationState.state == ApplicationState.RUNNING || ApplicationState.state == ApplicationState.STARTING))
             {
                 mainClass.mainWindow.KinectCameraImage.Visibility = Visibility.Hidden;
-                return;
+                return false;
             }
-            else
-            {
-                mainClass.mainWindow.KinectCameraImage.Visibility = Visibility.Visible;
-            }
+
+            mainClass.mainWindow.KinectCameraImage.Visibility = Visibility.Visible;
 
             // setup camera preview
             if (status.Equals("Color Camera"))
@@ -91,6 +96,7 @@ namespace KTS_Kinect_Tracking_Server.Kinect
                 colorImageData = new byte[kSensor.ColorFrameSource.FrameDescription.LengthInPixels * 4];
 
                 kinectPreviewBitmap = new WriteableBitmap(1920, 1080, 96, 96, PixelFormats.Bgra32, null);
+                
                 mainClass.mainWindow.KinectCameraImage.Source = kinectPreviewBitmap;
 
                 colorReader.FrameArrived += ColorReader_FrameArrived;
@@ -121,6 +127,9 @@ namespace KTS_Kinect_Tracking_Server.Kinect
 
                 depthReader.FrameArrived += DepthReader_FrameArrived;
             }
+
+            return true;
+
         }
 
         private void ClearPreviewCAmeras()
@@ -168,7 +177,7 @@ namespace KTS_Kinect_Tracking_Server.Kinect
         {
 
             // check if a kinect device is connected
-            setPreviewCamera();
+           bool cameraEnabled = setPreviewCamera();
 
             bodyReader = kSensor.BodyFrameSource.OpenReader();
             bodyReader.FrameArrived += bodyReader_FrameArrived;
@@ -184,6 +193,14 @@ namespace KTS_Kinect_Tracking_Server.Kinect
                 if (kSensor.IsOpen && kSensor.IsAvailable)
                 {
                     // break waiting cycle kinect is ready to go
+
+                    //if camera should be shown then enable it here!
+                    if (cameraEnabled)
+                    {
+                        mainClass.mainWindow.KinectCameraImage.Visibility = Visibility.Visible;
+                    }
+                  
+
                     return;
                 }
             }
