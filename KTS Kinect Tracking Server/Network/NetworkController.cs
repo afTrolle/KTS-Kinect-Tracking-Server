@@ -19,6 +19,9 @@ namespace KTS_Kinect_Tracking_Server.Network
         // list over available ips
         public List<IPAddress> validIps;
 
+        // holds client state information Maybe need synch critical sections is a possibilites 
+        public List<StateObject> ClientStates = new List<StateObject>();
+
         private Socket ServerSocket;
 
         internal void init(MainClass mClass)
@@ -53,8 +56,8 @@ namespace KTS_Kinect_Tracking_Server.Network
             try
             {
 
-                ServerSocket.Listen(100);
-                ServerSocket.BeginAccept(AcceptCallback, ServerSocket);
+                ServerSocket.Listen(2);
+                ServerSocket.BeginAccept(new AsyncCallback(AcceptCallback), ServerSocket);
 
             }
             catch (Exception e)
@@ -129,6 +132,39 @@ namespace KTS_Kinect_Tracking_Server.Network
             }
         }
 
+        internal void sendBodyData(StateObject client, MemoryStream stream)
+        {
+            try
+            {
+                //generate header for the traffic.
+                //Remarks The order of bytes in the array returned by the GetBytes method depends on whether the computer architecture is little - endian or big-endian.
+                byte[] intBytes = BitConverter.GetBytes((int)stream.Length);
+                if (!BitConverter.IsLittleEndian) { 
+                    Array.Reverse(intBytes);
+                }
+
+                byte[] message = stream.GetBuffer();
+
+                // set header  intbytes should be in little endian. 
+                message[0] = intBytes[0];
+                message[1] = intBytes[1];
+                message[2] = intBytes[2];
+                message[3] = intBytes[3];
+
+                //send object!
+                client.connection.BeginSend(message, 0, message.Length, SocketFlags.None, new AsyncCallback(SendCallBack), client);
+            }
+            catch (Exception e)
+            {
+                Console.Out.WriteLine(e.Message);
+            }
+        }
+
+        private void SendCallBack(IAsyncResult ar)
+        {
+         //   throw new NotImplementedException();
+        }
+
         /*     Network Callbacks         */
 
         private void AcceptCallback(IAsyncResult ar)
@@ -137,21 +173,29 @@ namespace KTS_Kinect_Tracking_Server.Network
             try
             {
                 // Get the socket that handles the client request.
-                Socket listener = (Socket)ar.AsyncState;
+                Socket serverSocket = (Socket)ar.AsyncState;
 
-                if (listener.Connected == true)
+                try
                 {
+
                     //get connected client socket
-                    Socket handler = listener.EndAccept(ar);
+                    Socket clientSocket = serverSocket.EndAccept(ar);
+
+                    clientSocket.NoDelay = true;
 
                     // create object handling client
                     StateObject state = new StateObject();
-                    state.connection = handler;
+                    ClientStates.Add(state);
+                    state.connection = clientSocket;
                     // start listening for message to recive!
-                    handler.BeginReceive(state.buffer, 0, StateObject.bufferSize, SocketFlags.None, ReadCallback, state);
+                    clientSocket.BeginReceive(state.buffer, 0, StateObject.bufferSize, SocketFlags.None, new AsyncCallback(ReadCallback), state);
 
                     // Accept new connections to the server!
-                    listener.BeginAccept(AcceptCallback, listener);
+                    ServerSocket.BeginAccept(new AsyncCallback(AcceptCallback), ServerSocket);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
                 }
 
             }
@@ -172,10 +216,10 @@ namespace KTS_Kinect_Tracking_Server.Network
             // Read data from the client socket.
             int bytesRead = handler.EndReceive(ar);
 
+
             //check if we recived more than 0 bytes
             if (bytesRead > 0)
             {
-
 
                 int offset = 0;
 
@@ -184,7 +228,7 @@ namespace KTS_Kinect_Tracking_Server.Network
                     // first 4 bytes of a message is the total length of the message
                     state.expectedMessageLength = BitConverter.ToInt32(state.buffer, 0);
                     state.message = new byte[state.expectedMessageLength];
-                   
+
                     offset = 4;
                 }
 
@@ -196,7 +240,7 @@ namespace KTS_Kinect_Tracking_Server.Network
                 {
                     // Here is message REcived 
 
-                   
+                    //TODO FIX THIS!
 
                     // Clear buffers
                     state.expectedMessageLength = 0;
@@ -204,7 +248,6 @@ namespace KTS_Kinect_Tracking_Server.Network
                     state.message = null;
 
                 }
-
 
             }
             // wait for more data
@@ -224,7 +267,6 @@ namespace KTS_Kinect_Tracking_Server.Network
             public int receivedMessageLength = 0;
             public byte[] message = null;
         }
-
     }
 
     [Serializable]

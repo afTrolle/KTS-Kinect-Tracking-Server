@@ -12,7 +12,9 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-
+using System.IO;
+using System.Net.Sockets;
+using static KTS_Kinect_Tracking_Server.Network.NetworkController;
 
 namespace KTS_Kinect_Tracking_Server.Kinect
 {
@@ -50,6 +52,7 @@ namespace KTS_Kinect_Tracking_Server.Kinect
             try
             {
                 kSensor = KinectSensor.GetDefault();
+               
                 // setup body tracking server
                 bodies = new Body[6]; //kinect camera can max track 6 people
 
@@ -131,6 +134,7 @@ namespace KTS_Kinect_Tracking_Server.Kinect
             return true;
 
         }
+
 
         private void ClearPreviewCAmeras()
         {
@@ -245,7 +249,8 @@ namespace KTS_Kinect_Tracking_Server.Kinect
                 {
                     bodyFrame.GetAndRefreshBodyData(bodies);
                     // updated body data
-                    
+
+
                     mainClass.onBodyTrackingUpdated(bodies);
 
                     bodyFrame.Dispose();

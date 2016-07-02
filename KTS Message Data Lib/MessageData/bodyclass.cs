@@ -1,11 +1,10 @@
-﻿
-using System;
+﻿using System;
 
-namespace KTS_Kinect_Tracking_Server.Utilitys
-{
-
+namespace MessageData
+{   
+    //this class is based on kinect sdk 2.0 completley 
     [Serializable]
-    public class Person
+    public class bodyclass
     {
 
         public bool IsTracked;
@@ -19,34 +18,24 @@ namespace KTS_Kinect_Tracking_Server.Utilitys
         public HandState HandRightState;
 
         public FrameEdges ClippedEdges;
-
-        // improvments make hastable / dictonary to save memory
-        //index by enum JointType
+      
+        // Index by enum JointType
         public Joint[] Joints = new Joint[25];
 
-        public Person()
-        {
 
-        }
+        //Enumerators used for indicating tracking state and which joint is tracked
 
-
-
-        [Serializable]
         public enum TrackingConfidence { Low, High };
 
-        [Serializable]
         public enum TrackingState
         {
             NotTracked = 0, Inferred = 1, Tracked = 2
         }
 
-        [Serializable]
         public enum HandState { Unknown, NotTracked, Open, Closed, Lasso };
 
-        [Serializable]
         public enum FrameEdges { None, Right = 1, Left = 2, Top = 4, Bottom = 8 }
 
-        [Serializable]
         public enum JointType
         {
             SpineBase = 0,
@@ -76,6 +65,8 @@ namespace KTS_Kinect_Tracking_Server.Utilitys
             ThumbRight = 24
         }
 
+
+        // structs used for the joint parts
         [Serializable]
         public struct Joint
         {
@@ -101,9 +92,10 @@ namespace KTS_Kinect_Tracking_Server.Utilitys
             public float Z;
         }
 
+
+
+
     }
-
-
 
 
 }

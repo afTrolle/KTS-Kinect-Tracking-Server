@@ -11,6 +11,7 @@ using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
+using static KTS_Kinect_Tracking_Server.Network.NetworkController;
 
 namespace KTS_Kinect_Tracking_Server
 {
@@ -20,7 +21,7 @@ namespace KTS_Kinect_Tracking_Server
         public KinectController kinectControl = new KinectController();
         public NetworkController networkControl = new NetworkController();
 
-      
+
         private Person[] Stefans = new Person[8];
 
 
@@ -29,7 +30,7 @@ namespace KTS_Kinect_Tracking_Server
         {
             this.mainWindow = mainWindow;
 
-            for (int i = 0; i< 8; i++)
+            for (int i = 0; i < 8; i++)
             {
                 Stefans[i] = new Person();
             }
@@ -103,25 +104,32 @@ namespace KTS_Kinect_Tracking_Server
         public void onBodyTrackingUpdated(Body[] bodies)
         {
 
-
             //TODO fix this
             for (int i = 0; i < 6; i++)
             {
-                if (bodies[i] != null) {
+                if (bodies[i] != null)
+                {
                     KinectBodyHelper.setPersonVariables(Stefans[i], bodies[i]);
                 }
             }
+
+            //append buffer so we can set size of the object with an int 
+            stream.Position = 4;
 
             // Serialize the customer object graph.
             formatter.Serialize(stream, Stefans);
 
             //todo SEND BYTE ARRAY!
-
+            foreach (StateObject client in networkControl.ClientStates)
+            {
+                if (client.connection.Connected)
+                {
+                    networkControl.sendBodyData(client, stream);
+                }
+            }
 
             //clear Stream
             stream.SetLength(0);
-
-
         }
 
     }
