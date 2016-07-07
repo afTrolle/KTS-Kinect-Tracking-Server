@@ -1,6 +1,7 @@
 ﻿using KTS_Kinect_Tracking_Server.Kinect;
 using KTS_Kinect_Tracking_Server.Network;
 using KTS_Kinect_Tracking_Server.Utilitys;
+using MessageData;
 using Microsoft.Kinect;
 using System;
 using System.Collections.Generic;
@@ -19,10 +20,9 @@ namespace KTS_Kinect_Tracking_Server
     {
         public MainWindow mainWindow;
         public KinectController kinectControl = new KinectController();
-        public NetworkController networkControl = new NetworkController();
 
+        public NetworkClass networkControl;
 
-        private Person[] Stefans = new Person[8];
 
 
         // Called when Application window was loaded but not yet been shown.
@@ -30,10 +30,7 @@ namespace KTS_Kinect_Tracking_Server
         {
             this.mainWindow = mainWindow;
 
-            for (int i = 0; i < 8; i++)
-            {
-                Stefans[i] = new Person();
-            }
+            KinectBodyHelper.Initialization();
 
             //TODO Clean up this
             try
@@ -41,18 +38,12 @@ namespace KTS_Kinect_Tracking_Server
                 // Prep Kinect SDK
                 kinectControl.init(this);
                 // Prep Network
-                networkControl.init(this);
+                networkControl = new NetworkClass(this);
             }
             catch (KinectInitException e)
             {
 
             }
-            catch (NetworkControllerInitException e)
-            {
-
-            }
-
-            // Load Settings if it doesn't conflict with kinect and networking options
         }
 
 
@@ -70,7 +61,7 @@ namespace KTS_Kinect_Tracking_Server
 
             try
             {
-                await networkControl.StartServerAsync();
+                networkControl.startServer();
             }
             catch (Exception e)
             {
@@ -86,50 +77,46 @@ namespace KTS_Kinect_Tracking_Server
         {
             kinectControl.StopTracking();
 
-            networkControl.StopTracking();
+            networkControl.stopServer();
         }
 
 
         // Called when application should quit running
         internal void onApplicationExit()
         {
-            networkControl.ApplicationClosing();
+            networkControl.stopServer();
             kinectControl.onApplicationExit();
         }
 
-
-        BinaryFormatter formatter = new BinaryFormatter();
-        MemoryStream stream = new MemoryStream();
 
         public void onBodyTrackingUpdated(Body[] bodies)
         {
 
             //TODO fix this
-            for (int i = 0; i < 6; i++)
+
+            bodyclass[] serilazableBodyData = KinectBodyHelper.getSerilazableBodyData(bodies);
+
+            MessageClass Message = new MessageClass();
+
+            Message.ins = 1;
+            Message.body = serilazableBodyData;
+
+            networkControl.sendMessage(Message);
+
+
+
+
+            int numberofCountedBodies = 0;
+            foreach (Body body in bodies)
             {
-                if (bodies[i] != null)
+                if (body.IsTracked)
                 {
-                    KinectBodyHelper.setPersonVariables(Stefans[i], bodies[i]);
+                    numberofCountedBodies++;
                 }
             }
 
-            //append buffer so we can set size of the object with an int 
-            stream.Position = 4;
+            GUIHandler.setTrackedNumberOfBodies(numberofCountedBodies);
 
-            // Serialize the customer object graph.
-            formatter.Serialize(stream, Stefans);
-
-            //todo SEND BYTE ARRAY!
-            foreach (StateObject client in networkControl.ClientStates)
-            {
-                if (client.connection.Connected)
-                {
-                    networkControl.sendBodyData(client, stream);
-                }
-            }
-
-            //clear Stream
-            stream.SetLength(0);
         }
 
     }

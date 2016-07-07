@@ -35,6 +35,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="MessageData">
+      <HintPath>..\KTS Message Data Lib\MessageData\bin\Release\MessageData.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Kinect, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -57,7 +60,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Network\NetworkClass.cs" />
     <Compile Include="Utilitys\ApplicationState.cs" />
+    <Compile Include="Utilitys\GUIHandler.cs" />
     <Compile Include="Utilitys\KinectBodyHelper.cs" />
     <Compile Include="Utilitys\KinectBodyWrapper.cs" />
     <Compile Include="Utilitys\SettingsHelper.cs" />

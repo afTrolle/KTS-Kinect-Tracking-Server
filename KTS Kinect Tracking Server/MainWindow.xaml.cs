@@ -35,6 +35,9 @@ namespace KTS_Kinect_Tracking_Server
         {
             InitializeComponent();
 
+            //set refernce to window.
+            GUIHandler.mainWindow = this;
+
             this.Loaded += onApplicationInitialization;
             this.Closing += onApplcationClosing;
 
@@ -50,7 +53,7 @@ namespace KTS_Kinect_Tracking_Server
             // guard so that inizaltation occurs only once
             if (!ApplicationState.isApplicationInitialized)
             {
-
+              
                 setUiFromApplicationSettings();
 
                 mClass.onApplicationInitialization(this);

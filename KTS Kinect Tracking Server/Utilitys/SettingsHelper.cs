@@ -23,6 +23,11 @@ namespace KTS_Kinect_Tracking_Server.Utilitys
             Settings.Default.Save();
         }
 
+        internal static string getSelectedNetworkInterface()
+        {
+            return Settings.Default.NetworkInterface;
+        }
+
         // Load if the camera should be enabled
         public static bool isKinectCameraPreviewEnabled()
         {
@@ -37,11 +42,19 @@ namespace KTS_Kinect_Tracking_Server.Utilitys
             Settings.Default.Save();
         }
 
+        internal static int getNetworkPort()
+        {
+            return Settings.Default.Port;
+        }
+
         // get if logs are enabled or not
         public static bool isLoggingEnabled()
         {
             return Settings.Default.isLogingEnabled;
         }
+
+
+
 
     }
 }

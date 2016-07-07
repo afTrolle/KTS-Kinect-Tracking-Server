@@ -139,7 +139,7 @@ namespace KTS_Kinect_Tracking_Server.Network
                 //generate header for the traffic.
                 //Remarks The order of bytes in the array returned by the GetBytes method depends on whether the computer architecture is little - endian or big-endian.
                 byte[] intBytes = BitConverter.GetBytes((int)stream.Length);
-                if (!BitConverter.IsLittleEndian) { 
+                if (BitConverter.IsLittleEndian) { 
                     Array.Reverse(intBytes);
                 }
 
@@ -188,7 +188,7 @@ namespace KTS_Kinect_Tracking_Server.Network
                     ClientStates.Add(state);
                     state.connection = clientSocket;
                     // start listening for message to recive!
-                    clientSocket.BeginReceive(state.buffer, 0, StateObject.bufferSize, SocketFlags.None, new AsyncCallback(ReadCallback), state);
+                  //  clientSocket.BeginReceive(state.buffer, 0, StateObject.bufferSize, SocketFlags.None, new AsyncCallback(ReadCallback), state);
 
                     // Accept new connections to the server!
                     ServerSocket.BeginAccept(new AsyncCallback(AcceptCallback), ServerSocket);
