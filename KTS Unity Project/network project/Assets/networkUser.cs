@@ -1,48 +1,39 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class networkUser : MonoBehaviour {
+public class networkUser : MonoBehaviour
+{
 
     public string ip;
     public int port;
 
-    private KinectConnectorhandler kinectConnectorHandler = new KinectConnectorhandler();
+    private AsynchronousKTSClient KTSClient = new AsynchronousKTSClient();
 
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    void Start()
+    {
 
         //kinectConnectorHandler.setIP(ip);
         //kinectConnectorHandler.setport(port);
-      //  kinectConnectorHandler.setOnDisconnected(onDisconnected);
+        //  kinectConnectorHandler.setOnDisconnected(onDisconnected);
 
         Debug.Log(System.Environment.Version);
 
-        kinectConnectorHandler.connect(ip,port);
+        KTSClient.connect(ip,port);
     }
 
-    // Update is called once per frame
-    void Update () {
-	
-	}
-
-    void onDisconnected()
+    void onConnected(bool status)
     {
+        //if we where successful to connect to server
+        if (status)
+        {
+
+        }
+        else
+        {
+
+        }
 
     }
 
-    void onConnected()
-    {
-
-    }
-
-    void onBodyDataRecieved()
-    {
-
-    }
-
-    //TBD
-    void onIdentification()
-    {
-
-    }
 }
