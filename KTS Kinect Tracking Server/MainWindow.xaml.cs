@@ -190,7 +190,7 @@ namespace KTS_Kinect_Tracking_Server
                 try
                 {
                     // TODO call stop functions
-                    await mClass.onApplicationStopAsync();
+                    mClass.onApplicationStop();
                     StartStopButton.Content = "Start";
                     ApplicationState.state = ApplicationState.IDLE;
                 }

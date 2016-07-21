@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2015
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KTS Gear VR.CSharp", "KTS Gear VR.CSharp.csproj", "{8A3D4004-C092-779C-9E5A-7ACD346F0BAF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KTS Gear VR.CSharp.Editor", "KTS Gear VR.CSharp.Editor.csproj", "{2F09F9B3-139C-EF23-DFE3-A3D0055EC90C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8A3D4004-C092-779C-9E5A-7ACD346F0BAF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A3D4004-C092-779C-9E5A-7ACD346F0BAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A3D4004-C092-779C-9E5A-7ACD346F0BAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A3D4004-C092-779C-9E5A-7ACD346F0BAF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2F09F9B3-139C-EF23-DFE3-A3D0055EC90C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F09F9B3-139C-EF23-DFE3-A3D0055EC90C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2F09F9B3-139C-EF23-DFE3-A3D0055EC90C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2F09F9B3-139C-EF23-DFE3-A3D0055EC90C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

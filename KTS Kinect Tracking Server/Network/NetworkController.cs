@@ -41,7 +41,7 @@ namespace KTS_Kinect_Tracking_Server.Network
 
         }
 
-        internal async Task StartServerAsync()
+        internal void StartServer()
         {
 
             ServerSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -60,7 +60,7 @@ namespace KTS_Kinect_Tracking_Server.Network
                 ServerSocket.BeginAccept(new AsyncCallback(AcceptCallback), ServerSocket);
 
             }
-            catch (Exception e)
+            catch (Exception)
             {
 
             }

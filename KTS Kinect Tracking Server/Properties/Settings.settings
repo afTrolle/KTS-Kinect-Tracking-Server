@@ -8,9 +8,6 @@
     <Setting Name="NetworkInterface" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="KinectCamera" Type="System.String" Scope="User">
-      <Value Profile="(Default)">Color Camera</Value>
-    </Setting>
     <Setting Name="isKinectCameraEnabled" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
@@ -19,6 +16,9 @@
     </Setting>
     <Setting Name="isLogingEnabled" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="KinectCamera" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Depth Camera</Value>
     </Setting>
   </Settings>
 </SettingsFile>

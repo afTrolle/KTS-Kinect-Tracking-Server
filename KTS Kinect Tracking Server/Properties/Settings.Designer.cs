@@ -49,18 +49,6 @@ namespace KTS_Kinect_Tracking_Server.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Color Camera")]
-        public string KinectCamera {
-            get {
-                return ((string)(this["KinectCamera"]));
-            }
-            set {
-                this["KinectCamera"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool isKinectCameraEnabled {
             get {
@@ -92,6 +80,18 @@ namespace KTS_Kinect_Tracking_Server.Properties {
             }
             set {
                 this["isLogingEnabled"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Depth Camera")]
+        public string KinectCamera {
+            get {
+                return ((string)(this["KinectCamera"]));
+            }
+            set {
+                this["KinectCamera"] = value;
             }
         }
     }

@@ -31,7 +31,6 @@ namespace KTS_Kinect_Tracking_Server.Network
             GUIHandler.setAvailableNetworkIps(ValidIps);
         }
 
-
         public void startServer()
         {
             try
@@ -93,14 +92,12 @@ namespace KTS_Kinect_Tracking_Server.Network
             //append buffer so we can set header of the object with an int 
             memoryStream.Position = 4;
 
-
             // Serialize the messageclass to memory stream
             formatter.Serialize(memoryStream, data);
 
-
             int memStreamLength = (int)memoryStream.Length;
             // generates header
-            byte[] intBytes = BitConverter.GetBytes(memStreamLength-4);
+            byte[] intBytes = BitConverter.GetBytes(memStreamLength - 4);
             if (BitConverter.IsLittleEndian)
             {
                 Array.Reverse(intBytes);
@@ -114,14 +111,26 @@ namespace KTS_Kinect_Tracking_Server.Network
             message[2] = intBytes[2];
             message[3] = intBytes[3];
 
-
-            //send object!
+            //send object! to all connected people
             lock (clients)
             {
-                //send message to all clients!
-                foreach (StateObject state in clients)
+
+                for (int i = 0; i < clients.Count; i++)
                 {
-                    state.clientSocket.BeginSend(message, 0, memStreamLength, SocketFlags.None, new AsyncCallback(SendCallback), state);
+
+                    try
+                    {
+                        clients[i].clientSocket.BeginSend(message, 0, memStreamLength, SocketFlags.None, new AsyncCallback(SendCallback), clients[i]);
+                    }
+                    catch
+                    {
+                        if (clients.Contains(clients[i]))
+                        {
+                            clients[i].clientSocket.Close();
+                            clients[i].Message.Close();
+                            clients.Remove(clients[i]);
+                        }
+                    }
                 }
             }
 
@@ -154,9 +163,8 @@ namespace KTS_Kinect_Tracking_Server.Network
                 //add connected client!
                 addClient(state);
 
-                //start listening for infromation
-                state.clientSocket.BeginReceive(state.buffer, 0, StateObject.bufferSize, SocketFlags.None, new AsyncCallback(ReciveCallback), state);
-
+                //start listening for infromation ignore for now only one way communication
+                // state.clientSocket.BeginReceive(state.buffer, 0, StateObject.bufferSize, SocketFlags.None, new AsyncCallback(ReciveCallback), state);
 
                 ServerSocket.BeginAccept(new AsyncCallback(AcceptCallback), server);
             }
@@ -172,31 +180,32 @@ namespace KTS_Kinect_Tracking_Server.Network
         {
             StateObject state = (StateObject)ar.AsyncState;
 
-            try { 
-            int bytesRead = state.clientSocket.EndReceive(ar);
-
-            if (state.clientSocket.Connected)
+            try
             {
+                int bytesRead = state.clientSocket.EndReceive(ar);
 
-                //check that we recived at least 1 byte of data
-                if (bytesRead > 0)
+                if (state.clientSocket.Connected)
                 {
 
-                    //TODO handle message receving!
+                    //check that we recived at least 1 byte of data
+                    if (bytesRead > 0)
+                    {
+                        //TODO handle message receving!
 
+                    }
+
+                    // start receving more data again.
+                    state.clientSocket.BeginReceive(state.buffer, 0, StateObject.bufferSize, SocketFlags.None, new AsyncCallback(ReciveCallback), state);
+                }
+                else
+                {
+                    // TO DO update this
+                    //probably lost connection! or lingertime ran out or something!
+                    removeClient(state);
                 }
 
-                // start receving more data again.
-                state.clientSocket.BeginReceive(state.buffer, 0, StateObject.bufferSize, SocketFlags.None, new AsyncCallback(ReciveCallback), state);
             }
-            else
-            {
-                // TO DO update this
-                //probably lost connection! or lingertime ran out or something!
-                removeAndCloseSocket(state);
-            }
-
-            } catch { }
+            catch { }
 
         }
 
@@ -207,22 +216,13 @@ namespace KTS_Kinect_Tracking_Server.Network
             try
             {
                 int bytesSent = state.clientSocket.EndSend(ar);
-
-
-                // Falied to send any bytes!
-                if (bytesSent == 0)
-                {
-                    removeAndCloseSocket(state);
-                }
             }
-            catch
+            catch (Exception)
             {
-                removeAndCloseSocket(state);
+                //removeClient(state);
             }
-
 
         }
-
 
 
         //adding and removing clients from the list 
@@ -240,22 +240,14 @@ namespace KTS_Kinect_Tracking_Server.Network
             bool ret = false;
             lock (clients)
             {
-                ret = clients.Remove(client);
+                if (clients.Contains(client))
+                {
+                    client.clientSocket.Close();
+                    client.Message.Close();
+                    ret = clients.Remove(client);
+                }
             }
             return ret;
-        }
-
-        //shutdown socket and removes it from the list
-        private void removeAndCloseSocket(StateObject state)
-        {
-            try
-            {
-              //  state.clientSocket.Shutdown(SocketShutdown.Both);
-                state.clientSocket.Close();
-            }
-            catch (Exception) { }
-
-            removeClient(state);
         }
 
         /// <summary>
@@ -301,7 +293,7 @@ namespace KTS_Kinect_Tracking_Server.Network
             public Socket clientSocket = null;
 
             //Socket buffer
-            public const int bufferSize = 2048;
+            public const int bufferSize = 8048;
             public byte[] buffer = new byte[bufferSize];
 
             // message header how many bytes will be recived

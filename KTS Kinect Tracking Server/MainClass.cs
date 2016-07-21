@@ -24,7 +24,6 @@ namespace KTS_Kinect_Tracking_Server
         public NetworkClass networkControl;
 
 
-
         // Called when Application window was loaded but not yet been shown.
         public void onApplicationInitialization(MainWindow mainWindow)
         {
@@ -40,7 +39,7 @@ namespace KTS_Kinect_Tracking_Server
                 // Prep Network
                 networkControl = new NetworkClass(this);
             }
-            catch (KinectInitException e)
+            catch (KinectInitException)
             {
 
             }
@@ -69,15 +68,19 @@ namespace KTS_Kinect_Tracking_Server
                 throw e;
             }
 
+            watch.Start();
+
+
+
         }
 
-
         // Called when server should stop hosting and tracking a person.
-        public async Task onApplicationStopAsync()
+        public void onApplicationStop()
         {
             kinectControl.StopTracking();
 
             networkControl.stopServer();
+            watch.Stop();
         }
 
 
@@ -89,35 +92,51 @@ namespace KTS_Kinect_Tracking_Server
         }
 
 
+        MessageClass Message = new MessageClass();
+
+        Stopwatch watch = new Stopwatch();
+        int fpscounter = 0;
+
         public void onBodyTrackingUpdated(Body[] bodies)
         {
 
+            Logger.start();
             //TODO fix this
 
-            bodyclass[] serilazableBodyData = KinectBodyHelper.getSerilazableBodyData(bodies);
-
-            MessageClass Message = new MessageClass();
+            bodyclass[] serilazableBodyData = KinectBodyHelper.getSerilazableBodyDataOnlyTracked(bodies);
 
             Message.ins = 1;
             Message.body = serilazableBodyData;
 
             networkControl.sendMessage(Message);
 
+            Logger.stop();
+            fpscounter++;
 
-
-
-            int numberofCountedBodies = 0;
-            foreach (Body body in bodies)
+            if (watch.ElapsedMilliseconds > 1000)
             {
-                if (body.IsTracked)
+                Double avarageExecuutionTime = Logger.getAvarage();
+                int numberofCountedBodies = 0;
+                foreach (Body body in bodies)
                 {
-                    numberofCountedBodies++;
+                    if (body.IsTracked)
+                        numberofCountedBodies++;
                 }
+
+                GUIHandler.setTrackedNumberOfBodies(numberofCountedBodies, fpscounter, avarageExecuutionTime);
+                fpscounter = 0;
+                Logger.clear();
+                watch.Restart();
             }
 
-            GUIHandler.setTrackedNumberOfBodies(numberofCountedBodies);
 
         }
+
+
+
+        //tempororay fix
+
+
 
     }
 

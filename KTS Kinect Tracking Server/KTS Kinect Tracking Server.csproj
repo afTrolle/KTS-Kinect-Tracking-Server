@@ -19,7 +19,7 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
+    <Optimize>true</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
@@ -65,6 +65,7 @@
     <Compile Include="Utilitys\GUIHandler.cs" />
     <Compile Include="Utilitys\KinectBodyHelper.cs" />
     <Compile Include="Utilitys\KinectBodyWrapper.cs" />
+    <Compile Include="Utilitys\Logger.cs" />
     <Compile Include="Utilitys\SettingsHelper.cs" />
     <Compile Include="Utilitys\UserException.cs" />
     <Page Include="MainWindow.xaml">
@@ -115,6 +116,7 @@
     <Content Include="Assets\CameraPlaceHolder.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Resource Include="TODO.txt" />
     <Resource Include="Assets\Window_Icon.png" />
     <Resource Include="Assets\Window_Icon.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

@@ -250,10 +250,9 @@ namespace KTS_Kinect_Tracking_Server.Kinect
                     bodyFrame.GetAndRefreshBodyData(bodies);
                     // updated body data
 
-
                     mainClass.onBodyTrackingUpdated(bodies);
 
-                    bodyFrame.Dispose();
+                  //  bodyFrame.Dispose();
                 }
             }
         }

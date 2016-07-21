@@ -1,0 +1,7 @@
+﻿
+1. Fix Network Error!
+2. Write Performance Checking tools
+3. Make client recive buffer bigger
+4. Disable recive on server
+5. try and do optimizations (Send only one array slot! skip the other can be able to get theoretic 5 times performance increase! ) on binary formatter
+

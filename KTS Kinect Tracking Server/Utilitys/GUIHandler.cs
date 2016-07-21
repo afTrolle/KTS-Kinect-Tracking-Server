@@ -58,5 +58,12 @@ namespace KTS_Kinect_Tracking_Server.Utilitys
             mainWindow.KinectStatsTextBox.Text = text;
 
         }
+
+        internal static void setTrackedNumberOfBodies(int numberofCountedBodies, int fpscounter, Double avarageExecuutionTime)
+        {
+            String text = "Tracked Bodies: " + numberofCountedBodies + System.Environment.NewLine + "Latency: " + avarageExecuutionTime + " ms" +
+                 System.Environment.NewLine + "Fps: " + fpscounter;
+            mainWindow.KinectStatsTextBox.Text = text;
+        }
     }
 }

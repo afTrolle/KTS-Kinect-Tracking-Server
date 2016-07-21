@@ -61,6 +61,8 @@ namespace KTS_Kinect_Tracking_Server.Utilitys
 
             for (int i = 0; i < 5; i++)
             {
+                tempBodyHolder[i].TrackingID = bodies[i].TrackingId;
+
                 if (bodies[i].IsTracked)
                 {
                     tempBodyHolder[i].TrackingID = bodies[i].TrackingId;
@@ -95,9 +97,71 @@ namespace KTS_Kinect_Tracking_Server.Utilitys
                         tempBodyHolder[i].Joints[index].Orientation.Z = bodyJointOrientation.Orientation.Z;
 
                     }
-                }
+                } 
+                
             }
             return tempBodyHolder;
+        }
+
+        //probably one or two people will be tracked. not 5 people
+        //creates array only with tracked data!
+        internal static bodyclass[] getSerilazableBodyDataOnlyTracked(Body[] bodies)
+        {
+            int BodiesTracked = 0;
+
+            foreach (Body body in bodies)
+            {
+                if (body.IsTracked)
+                {
+                    BodiesTracked++;
+                }
+            }
+
+            bodyclass[] retBodies = new bodyclass[BodiesTracked];
+
+            int index = 0;
+
+            for (int i = 0; bodies.Length > i; i++)
+            {
+                if (bodies[i].IsTracked)
+                {
+                    retBodies[index] = new bodyclass();
+                    retBodies[index].TrackingID = bodies[i].TrackingId;
+                    retBodies[index].IsTracked = bodies[i].IsTracked;
+                    retBodies[index].IsRestricted = bodies[i].IsRestricted;
+
+                    retBodies[index].HandLeftConfidence = (bodyclass.TrackingConfidence)bodies[i].HandLeftConfidence;
+                    retBodies[index].HandRightConfidence = (bodyclass.TrackingConfidence)bodies[i].HandRightConfidence;
+
+                    retBodies[index].HandLeftState = (bodyclass.HandState)bodies[i].HandLeftState;
+                    retBodies[index].HandRightState = (bodyclass.HandState)bodies[i].HandRightState;
+
+                    retBodies[index].ClippedEdges = (bodyclass.FrameEdges)bodies[i].ClippedEdges;
+
+                    foreach (var item in bodies[i].Joints)
+                    {
+                        int index2 = (int)item.Key;
+                        Microsoft.Kinect.Joint bodyJoint = item.Value;
+
+                        retBodies[index].Joints[index2].TrackingState = (MessageData.bodyclass.TrackingState)bodyJoint.TrackingState;
+
+                        retBodies[index].Joints[index2].Position.X = bodyJoint.Position.X;
+                        retBodies[index].Joints[index2].Position.Y = bodyJoint.Position.Y;
+                        retBodies[index].Joints[index2].Position.Z = bodyJoint.Position.Z;
+
+                        Microsoft.Kinect.JointOrientation bodyJointOrientation = bodies[i].JointOrientations[item.Key];
+
+                        retBodies[index].Joints[index2].Orientation.W = bodyJointOrientation.Orientation.W;
+                        retBodies[index].Joints[index2].Orientation.X = bodyJointOrientation.Orientation.X;
+                        retBodies[index].Joints[index2].Orientation.Y = bodyJointOrientation.Orientation.Y;
+                        retBodies[index].Joints[index2].Orientation.Z = bodyJointOrientation.Orientation.Z;
+
+                    }
+                    index++;
+                }
+
+            }
+            return retBodies;
         }
     }
 }
