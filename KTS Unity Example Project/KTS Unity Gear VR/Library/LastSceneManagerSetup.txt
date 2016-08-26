@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/KTS Unity Gear.unity
+- path: Assets/Temporary/temp.unity
   isLoaded: 1
   isActive: 1

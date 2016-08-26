@@ -105,8 +105,9 @@ namespace KTS_Kinect_Tracking_Server
 
             bodyclass[] serilazableBodyData = KinectBodyHelper.getSerilazableBodyDataOnlyTracked(bodies);
 
-            Message.ins = 1;
-            Message.body = serilazableBodyData;
+            Message.instruction = 1;
+            Message.bodyCount = serilazableBodyData.Length;
+            Message.bodies = serilazableBodyData;
 
             networkControl.sendMessage(Message);
 

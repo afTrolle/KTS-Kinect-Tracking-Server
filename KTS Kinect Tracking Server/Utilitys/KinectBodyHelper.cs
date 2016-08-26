@@ -156,6 +156,7 @@ namespace KTS_Kinect_Tracking_Server.Utilitys
                         retBodies[index].Joints[index2].Orientation.Y = bodyJointOrientation.Orientation.Y;
                         retBodies[index].Joints[index2].Orientation.Z = bodyJointOrientation.Orientation.Z;
 
+
                     }
                     index++;
                 }

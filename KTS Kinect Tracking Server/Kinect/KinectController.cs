@@ -43,7 +43,6 @@ namespace KTS_Kinect_Tracking_Server.Kinect
         byte[] depthPixels;
 
 
-
         // inizalation of kinect sensor
         internal void init(MainClass mainClass)
         {
@@ -55,6 +54,7 @@ namespace KTS_Kinect_Tracking_Server.Kinect
                
                 // setup body tracking server
                 bodies = new Body[6]; //kinect camera can max track 6 people
+
 
             }
             catch (TypeInitializationException)
@@ -70,7 +70,6 @@ namespace KTS_Kinect_Tracking_Server.Kinect
 
             bool active = Settings.Default.isKinectCameraEnabled;
             string status = Settings.Default.KinectCamera;
-
 
             ClearPreviewCAmeras();
 
@@ -204,7 +203,6 @@ namespace KTS_Kinect_Tracking_Server.Kinect
                         mainClass.mainWindow.KinectCameraImage.Visibility = Visibility.Visible;
                     }
                   
-
                     return;
                 }
             }

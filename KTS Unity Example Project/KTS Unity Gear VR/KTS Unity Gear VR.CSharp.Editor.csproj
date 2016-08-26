@@ -92,7 +92,7 @@
       <HintPath>Library\UnityAssemblies\SyntaxTree.VisualStudio.Unity.Bridge.dll</HintPath>
     </Reference>
     <Reference Include="MessageData">
-      <HintPath>Assets\Tracking\MessageData.dll</HintPath>
+      <HintPath>Assets\Temporary\MessageData.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

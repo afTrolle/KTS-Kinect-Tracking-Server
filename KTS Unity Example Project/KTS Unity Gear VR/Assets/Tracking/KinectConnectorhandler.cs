@@ -204,7 +204,7 @@ public delegate void onDisconnect();
         MessageClass MessageData = (MessageClass)formatter.Deserialize(state.Message);
 
        // Debug.Log("Message recived!");
-        onBodyCallback(MessageData.body);
+        onBodyCallback(MessageData.bodies);
   
 
         //  print("recived body tracking data: " +i);
