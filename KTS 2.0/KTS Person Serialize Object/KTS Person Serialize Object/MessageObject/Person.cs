@@ -29,7 +29,7 @@ namespace KTS_Person_Serialize_Object.MessageObject
 
         // Index by enum JointType
         [ProtoMember(9)]
-        public Joint[] Joints = new Joint[25];
+        public Joint[] Joints;
 
     }
 
@@ -113,6 +113,5 @@ namespace KTS_Person_Serialize_Object.MessageObject
         HandTipRight = 23,
         ThumbRight = 24
     }
-
 
 }

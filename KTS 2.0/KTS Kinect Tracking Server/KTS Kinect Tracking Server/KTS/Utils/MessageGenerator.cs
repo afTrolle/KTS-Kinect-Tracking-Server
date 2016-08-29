@@ -53,6 +53,7 @@ namespace KTS_Kinect_Tracking_Server.KTS.Utils
         private static Person generatePerson(Body body)
         {
             Person person = new Person();
+            person.Joints = new KTS_Person_Serialize_Object.MessageObject.Joint[25];
             person.TrackingID = body.TrackingId;
             person.IsTracked = body.IsTracked;
             person.IsRestricted = body.IsRestricted;

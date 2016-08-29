@@ -135,7 +135,7 @@ namespace KTS_Kinect_Tracking_Server.KTS
                 memStream.Position = 4;
                 KTS_Person_Serialize_Object.KTSSerializer.SerializeKTSMessage(message, memStream);
                 networkHandler.sendMessages(memStream);
-            }
+           }
  
         }
 
