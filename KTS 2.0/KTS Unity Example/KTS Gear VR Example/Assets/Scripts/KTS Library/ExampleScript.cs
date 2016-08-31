@@ -2,18 +2,33 @@
 using System.Collections;
 using KTS_Person_Serialize_Object.MessageObject;
 using System;
+using Assets.Scripts.KTS_Library;
 
 public class ExampleScript : MonoBehaviour
 {
 
+    /*
+     * TODO Bug testa lämna kameran och kommer tillbaka! något blir fel!
+     * Plocka ut tracking id ur koden!
+     * note blir fel droppar inte personen där den lämnar tracking fältet.
+     * 
+     * Lägg till rotation till händerna! proably tracks bottom of the hands also
+     * 
+     */
+
+
     KTSLibrary KTSLib = new KTSLibrary();
+
     PlayerPositionHolder playerPos = new PlayerPositionHolder();
-    PlayerPositionHolder leftHand = new PlayerPositionHolder();
+
+    public Vector3 test;
 
     public string ip;
     public int port;
 
     public OVRCameraRig player;
+    public Transform RightHand;
+
 
 
     // Use this for initialization
@@ -21,10 +36,14 @@ public class ExampleScript : MonoBehaviour
     {
 
         KTSLib.connect(ip, port, onBodyCallback);
-        playerPos.setPlayerOrginialPosition(player.transform.position);
 
+        playerPos.setTrackingOffset(player.transform.position);
     }
 
+    /// <summary>
+    /// This callback is called on Not the UI THREAD! please read on multithreaded applications
+    /// </summary>
+    /// <param name="body"></param>
     private void onBodyCallback(Person[] body)
     {
 
@@ -32,27 +51,16 @@ public class ExampleScript : MonoBehaviour
         for (int i = 0; i < body.Length; i++)
         {
 
-            if (playerPos.getCurrentTrackingID() == 0 && body[i].IsTracked == true)
+            if (playerPos.getActivePlayerID() == 0 && body[i].IsTracked == true)
             {
-
-                KTS_Person_Serialize_Object.MessageObject.Joint neckJoint = body[i].Joints[(int)JointType.Head];
-                if (neckJoint.TrackingState == TrackingState.Tracked || neckJoint.TrackingState == TrackingState.Inferred)
-                {
-                    playerPos.setTrackingOrginalPosition(neckJoint.Position.X, neckJoint.Position.Y, neckJoint.Position.Z, body[i].TrackingID);
-                    playerPos.setPosition(neckJoint.Position.X, neckJoint.Position.Y, neckJoint.Position.Z);
-                }
+                playerPos.setTrackingUpdate(body[i].TrackingID, body[i]);
                 return;
             }
-            else if (body[i].IsTracked == true && playerPos.getCurrentTrackingID() == body[i].TrackingID)
+            else if (body[i].TrackingID == playerPos.getActivePlayerID() && body[i].IsTracked == true)
             {
-                KTS_Person_Serialize_Object.MessageObject.Joint neckJoint = body[i].Joints[(int)JointType.Neck];
-                if (neckJoint.TrackingState == TrackingState.Tracked)
-                {
-                    playerPos.setPosition(neckJoint.Position.X, neckJoint.Position.Y, neckJoint.Position.Z);
-                }
+                playerPos.setTrackingUpdate(body[i]);
                 return;
             }
-
         }
     }
 
@@ -61,7 +69,17 @@ public class ExampleScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        player.transform.transform.position = playerPos.getPosition();
+
+        Vector3 temp = playerPos.getCalibratedPosition(JointType.Neck);
+        if (temp.x != 0 && temp.y != 0 && temp.z != 0)
+            player.transform.transform.position = temp;
+
+        temp = playerPos.getCalibratedPosition(JointType.HandRight);
+
+        if (temp.x != 0 && temp.y != 0 && temp.z != 0)
+            RightHand.transform.position = temp;
+
+       // temp = playerPos.getOrientation(JointType.HandRight);
     }
 }
 
@@ -70,78 +88,84 @@ public class ExampleScript : MonoBehaviour
 
 public class PlayerPositionHolder
 {
-    UnityEngine.Object PositionLock = new UnityEngine.Object();
 
-    //First Position reading when tracking
-    private Vector3 TrackingOrginalPos = new Vector3();
-    // first position of game character 
-    private Vector3 playerOrginalPos;
-
-    // latest position of tracking device
-    private Vector3 latestTrackingPos = new Vector3();
-
-    //keeps times since last update
+    // Program currently only tracks one person for  3 seconds the pics a new target!
     private float timeLeft = 2.0f;
+    private ulong PersonTrackingID = 0;
+    private UnityEngine.Object _lock = new UnityEngine.Object();
 
+    TrackingUtils jointHolder = new TrackingUtils();
 
-    private ulong currentTrackingID = 0;
-
-    public void setPlayerOrginialPosition(Vector3 playerPos)
+    internal void setTrackingOffset(Vector3 position)
     {
-        lock (PositionLock)
+        jointHolder.Offset = position;
+    }
+
+    internal ulong getActivePlayerID()
+    {
+        lock (_lock)
         {
-            playerOrginalPos = playerPos;
+            return PersonTrackingID;
         }
     }
 
-    public void setTrackingOrginalPosition(float x, float y, float z, ulong currentTrackingID)
+
+
+    internal void setTrackingUpdate(ulong trackingID, Person person)
     {
-        lock (PositionLock)
+        lock (_lock)
         {
-            timeLeft = 5.0f;
-            this.currentTrackingID = currentTrackingID;
-            TrackingOrginalPos.x = x;
-            TrackingOrginalPos.y = y;
-            TrackingOrginalPos.z = -z;
+            PersonTrackingID = trackingID;
+
         }
     }
 
-    public void setPosition(float x, float y, float z)
+    internal void setTrackingUpdate(Person person)
     {
-        lock (PositionLock)
-        {
-            timeLeft = 2.0f;
 
-            latestTrackingPos.x = x;
-            latestTrackingPos.y = y;
-            latestTrackingPos.z = -z;
+        lock (_lock)
+        {
+            //cheating a bit here  TrackingState.Tracked == 2 and TrackingState.Inferd == 1 while TrackingState.NotTracked = 0
+            if (person.Joints[(int)JointType.Neck].TrackingState > 0)
+                jointHolder.updateTrackingPoint(person.Joints[(int)JointType.Neck], JointType.Neck);
+            if (person.Joints[(int)JointType.HandRight].TrackingState > 0)
+                jointHolder.updateTrackingPoint(person.Joints[(int)JointType.HandRight], JointType.HandRight);
+            if (person.Joints[(int)JointType.HandLeft].TrackingState > 0)
+                jointHolder.updateTrackingPoint(person.Joints[(int)JointType.HandLeft], JointType.HandLeft);
+
+            //reset timer!
+            timeLeft = 3.0f;
+
         }
+
     }
 
-    public ulong getCurrentTrackingID()
+    internal Vector3 getCalibratedPosition(JointType type)
     {
-        lock (PositionLock)
+        lock (_lock)
         {
-            return currentTrackingID;
-        }
-    }
-
-    public Vector3 getPosition()
-    {
-        lock (PositionLock)
-        {
-
             timeLeft -= Time.deltaTime;
 
             if (timeLeft < 0)
             {
-                timeLeft = 0;
-                currentTrackingID = 0;
+                PersonTrackingID = 0;
             }
-
-            return (latestTrackingPos - TrackingOrginalPos + playerOrginalPos);
+          return  jointHolder.getCalibratedJointPosistion(type);
         }
     }
+    /*
+    internal Vector3 getOrientation(JointType handRight)
+    {
+        lock (_lock)
+        {
+            timeLeft -= Time.deltaTime;
 
-
+            if (timeLeft < 0)
+            {
+                PersonTrackingID = 0;
+            }
+            return jointHolder.getCalibratedJointPosistion(type);
+        }
+    }
+    */
 }

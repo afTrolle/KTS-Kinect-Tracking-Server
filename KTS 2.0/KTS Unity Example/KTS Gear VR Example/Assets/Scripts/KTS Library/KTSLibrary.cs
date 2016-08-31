@@ -142,6 +142,7 @@ public delegate void onDisconnect();
             {
                 //if generate header fails means that we haven't enough data to generate a header.
 
+
                 //wait for more information
                 state.Client.BeginReceive(state.Buffer, 0, StateClass.BufferSize, SocketFlags.None, new AsyncCallback(ReceiveCallaback), state);
                 return;
@@ -266,10 +267,6 @@ public delegate void onDisconnect();
     {
         //   throw new NotImplementedException();
     }
-
-
-
-
 
 }
 
