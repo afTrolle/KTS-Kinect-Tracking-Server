@@ -10,7 +10,9 @@ namespace Assets.Scripts.KTS_Library
 {
     class TrackingUtils
     {
-
+     
+        // possible solution
+        //   https://social.msdn.microsoft.com/Forums/en-US/a5c8e59d-9131-4014-9439-4e53583aef47/kinect-v2-body-orientation-detection-in-unity3d?forum=kinectv2sdk
         internal static Vector3 _offset;
         // Offset to set the tracking by
         public Vector3 Offset
@@ -85,6 +87,21 @@ namespace Assets.Scripts.KTS_Library
 
         }
 
+        internal Quaternion getJointOrientation(JointType type)
+        {
+            lock (PositionLock)
+            {
+                trackingPoint point = null;
+
+                //try to get tracking point
+                if (trackingPoints.TryGetValue(type, out point))
+                {
+                    return point.getOrientaion();
+                }
+
+                return new Quaternion(0, 0, 0,0);
+            }
+        }
     }
 
     public class trackingPoint
@@ -122,6 +139,24 @@ namespace Assets.Scripts.KTS_Library
             Originposisition.x = joint.Position.X;
             Originposisition.y = joint.Position.Y;
             Originposisition.z = -joint.Position.Z;
+        }
+
+        internal Quaternion getOrientaion()
+        {
+            /*
+            Binormal(X) – perpendicular to bone and normal
+            Bone direction(Y) - always matches skeleton
+            Normal(Z) – joint roll, perpendicular to the bone
+            So if you want to extract the normal, transform vector (0, 0, 1) using the quaternion.
+            */
+
+           return new Quaternion(-Orientation.x,-Orientation.y, Orientation.z, Orientation.w);
+         //    return new Quaternion(0, 0, Orientation.z, Orientation.w); //roll
+            // return new Quaternion(-Orientation.x, 0, 0, Orientation.w); pitch
+            //  return new Quaternion(0,Orientation.y , 0, Orientation.w); //pitch
+           // return new Quaternion(0, -Orientation.y, 0, 20); //pitch
+            // Orientation.x Pitch
+            //   Orientation.z Roll
         }
     }
 

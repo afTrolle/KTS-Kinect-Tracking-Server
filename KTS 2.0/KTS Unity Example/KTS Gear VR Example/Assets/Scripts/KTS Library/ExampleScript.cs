@@ -12,7 +12,7 @@ public class ExampleScript : MonoBehaviour
      * Plocka ut tracking id ur koden!
      * note blir fel droppar inte personen där den lämnar tracking fältet.
      * 
-     * Lägg till rotation till händerna! proably tracks bottom of the hands also
+     * Lägg till rotation till händerna! proably tracks bottom of the hands also!
      * 
      */
 
@@ -37,7 +37,7 @@ public class ExampleScript : MonoBehaviour
 
         KTSLib.connect(ip, port, onBodyCallback);
 
-        playerPos.setTrackingOffset(player.transform.position);
+        //playerPos.setTrackingOffset(player.transform.position);
     }
 
     /// <summary>
@@ -70,19 +70,22 @@ public class ExampleScript : MonoBehaviour
     void Update()
     {
 
+        playerPos.updateTime();
+
         Vector3 temp = playerPos.getCalibratedPosition(JointType.Neck);
         if (temp.x != 0 && temp.y != 0 && temp.z != 0)
             player.transform.transform.position = temp;
 
         temp = playerPos.getCalibratedPosition(JointType.HandRight);
-
         if (temp.x != 0 && temp.y != 0 && temp.z != 0)
             RightHand.transform.position = temp;
 
-       // temp = playerPos.getOrientation(JointType.HandRight);
+        Quaternion test =  playerPos.getOrientation(JointType.HandRight);
+        //if (temp.x != 0 && temp.y != 0 && temp.z != 0)
+        RightHand.transform.localRotation = test;
     }
-}
 
+}
 
 
 
@@ -91,6 +94,7 @@ public class PlayerPositionHolder
 
     // Program currently only tracks one person for  3 seconds the pics a new target!
     private float timeLeft = 2.0f;
+
     private ulong PersonTrackingID = 0;
     private UnityEngine.Object _lock = new UnityEngine.Object();
 
@@ -116,7 +120,6 @@ public class PlayerPositionHolder
         lock (_lock)
         {
             PersonTrackingID = trackingID;
-
         }
     }
 
@@ -140,32 +143,39 @@ public class PlayerPositionHolder
 
     }
 
+
+    internal void updateTime()
+    {
+        lock (_lock)
+        {
+            timeLeft -= Time.deltaTime;
+
+            //check if it has passed to long since last update
+            if (timeLeft < 0)
+            {
+                PersonTrackingID = 0;
+                jointHolder = new TrackingUtils();
+                timeLeft = 3.0f;
+            }
+        }
+    }
+
     internal Vector3 getCalibratedPosition(JointType type)
     {
         lock (_lock)
         {
-            timeLeft -= Time.deltaTime;
-
-            if (timeLeft < 0)
-            {
-                PersonTrackingID = 0;
-            }
-          return  jointHolder.getCalibratedJointPosistion(type);
-        }
-    }
-    /*
-    internal Vector3 getOrientation(JointType handRight)
-    {
-        lock (_lock)
-        {
-            timeLeft -= Time.deltaTime;
-
-            if (timeLeft < 0)
-            {
-                PersonTrackingID = 0;
-            }
             return jointHolder.getCalibratedJointPosistion(type);
         }
     }
-    */
+
+
+    internal Quaternion getOrientation(JointType type)
+    {
+        lock (_lock)
+        {
+            return jointHolder.getJointOrientation(type);
+        }
+    }
+
+
 }

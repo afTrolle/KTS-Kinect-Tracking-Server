@@ -132,11 +132,15 @@ namespace KTS_Kinect_Tracking_Server.KTS
 
             if (message != null)
             {
+             
                 memStream.Position = 4;
                 KTS_Person_Serialize_Object.KTSSerializer.SerializeKTSMessage(message, memStream);
                 networkHandler.sendMessages(memStream);
            }
- 
+
+
+            WindowHelper.setTrackedBodyCount(bodies);
+
         }
 
         /******************  Logging handlers  *************************/

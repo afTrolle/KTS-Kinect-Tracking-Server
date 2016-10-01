@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using Microsoft.Kinect;
 
 namespace KTS_Kinect_Tracking_Server.KTS.Gui
 {
@@ -98,6 +99,19 @@ namespace KTS_Kinect_Tracking_Server.KTS.Gui
             mainWindow.StartStopButton.Content = "Start";
             mainWindow.StartStopButton.IsEnabled = true;
             setInterfaceInteraction(true);
+        }
+
+        internal static void setTrackedBodyCount(Body[] bodies)
+        {
+            int temp = 0;
+            foreach (var body in bodies)
+            {
+                if (body.IsTracked)
+                    temp++;
+            }
+
+            mainWindow.KinectStatsTextBox.Text = "Tracked Bodys: "+temp+Environment.NewLine +"Overall Latency: 0ms";
+
         }
     }
 }
